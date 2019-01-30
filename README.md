@@ -14,8 +14,11 @@ A Unity3D based viewer for visualizing OGC IndoorGML data
 1. You need to install Unity3D
 https://unity3d.com/get-unity/download
 
-2. Run Unity3D -> Open this project -> Play
+2. Run Unity3D -> Open this project
 
+3. (In unity3D) Open scene file (/Assets/Scenes/Main)
+
+4. Play
 
 ## Movement
 - tab : Toggle navigation mode
