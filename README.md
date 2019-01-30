@@ -1,4 +1,4 @@
-# InViewer
+# InViewer/Desktop
 
 A Unity3D based viewer for visualizing OGC IndoorGML data
 
