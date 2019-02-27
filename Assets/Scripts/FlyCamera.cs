@@ -46,7 +46,7 @@ public class FlyCamera : MonoBehaviour
             Application.Quit();
         }
 
-        if (Input.GetKeyUp(KeyCode.Tab))
+        if (Input.GetKeyUp(KeyCode.F))
         {
             moveMode = !moveMode;
             Cursor.visible = !moveMode;

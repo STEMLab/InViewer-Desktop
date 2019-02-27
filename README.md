@@ -18,16 +18,22 @@ https://unity3d.com/get-unity/download
 3. (In unity3D) Open scene file (/Assets/Scenes/Main)
 4. Play "Menu -> Edit -> Play (Ctrl + P)" 
 
+- Compile GUI runtime
+1. Open GUI project with Visual Studio 2018 at [Source/_GUI]
+2. Build
+3. Move all output binaries(Source/_GUI/InviewerDesktopGUI/bin/Debug or Release) to [Source/Compiled] folder
+
 - Execute compiled binary 
 1. Goto [Source/Compiled] Folder
-2. Run "Inviewer-Desktop.exe"
+2. Run "InviewerDesktopGUI.exe"
 
-## Movement
-- ESC : Quit
-- tab : Toggle navigation mode
-- w, a, s, d : basic movement (Navigation Mode)
-- q, e: up / down (Navigation Mode)
-- shift : Makes camera accelerate (Navigation Mode)
+## Usage
+- Mouse Left-Button Drag : Panning
+- Mouse Right-Button Drag : Fast Zoom in Out
+- Mouse Middle-Button Drag : Rotation
+- Mouse Wheel Up&Down : Zoom in and out
+
+- (Left side on window) Tree controller double click : short-cut to select item.
 
 ## Authors
 
