@@ -159,7 +159,7 @@
             this.transitionSpaceToolStripMenuItem,
             this.cellSpaceBoundaryToolStripMenuItem});
             this.cullingSpacesToolStripMenuItem.Name = "cullingSpacesToolStripMenuItem";
-            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.cullingSpacesToolStripMenuItem.Text = "Back-face Culling";
             // 
             // cellSpaceToolStripMenuItem
@@ -201,7 +201,7 @@
             this.middleToolStripMenuItem,
             this.smallToolStripMenuItem});
             this.stateSizeToolStripMenuItem.Name = "stateSizeToolStripMenuItem";
-            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.stateSizeToolStripMenuItem.Text = "State Size";
             // 
             // largeToolStripMenuItem
@@ -511,6 +511,7 @@
             this.toolStripButton_Query.Name = "toolStripButton_Query";
             this.toolStripButton_Query.Size = new System.Drawing.Size(39, 37);
             this.toolStripButton_Query.Text = "toolStripButton1";
+            this.toolStripButton_Query.Visible = false;
             this.toolStripButton_Query.Click += new System.EventHandler(this.toolStripButton_Query_Click);
             // 
             // statusStrip1

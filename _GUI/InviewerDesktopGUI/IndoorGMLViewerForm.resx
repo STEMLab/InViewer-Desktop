@@ -127,16 +127,16 @@
   <data name="toolStripButton_OpenFile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIXSURBVGhD7ZjNShxBFEZLY5AQgiAhIHEWE7S7VbLK3myz
-        dJ1nyDu49BniYuwQF/6CiCIYSASl090KeYIssk+EGAiNk66bLrgDtvWNPW7m1qIOnOVcz2WmpCjl8Xg8
-        Hs9tdEe1yljtFLG6oljRIOpYLfPHZdEf1XQV/gtFNunEEuWa2kZxgyq+RLGm/qCw+yi6BAqS0Jy/6hzu
-        VudxltMGAw2TtFhVP6tv9DnnNYOGSFt21CbnNYMGSFt9C785rxk0wAU5rxn0YRfkvGbQh2t+GCE6fEp0
-        9oIoi4jy4Vjk0V9KgxOdzS1yKgZG3/RLC/6BYVnk7a7OgjecawOje+4+gUOHbTeJvhOpUU6uA8N7fpqC
-        AyXUadDm5DowvOdpGw6TUOcLLU6uA8ON5vBmIRw2bKsDfXX/n9DGOBwm4b88SDjXBsYb9ybgMAnLLHjP
-        uTYw3nj0DA6TUJ9H7zjXBsYbP8v+/7+pzqPXnGsD443JDBwmoU7mJznXBsavj8FBEl5/DX5wKgYusPMY
-        DpOwzMMDTsXABQ4m4TAJqwVWOBUDFzh26AqRhW85FQMXcOkKcR6+5FSMFe/SFSKNCrp49ZBTMdYCTl0h
-        wm+c2R/rPdShKwTlQcyZ/TGPSbUFHLpCUDq3xJn9MS9htcddR64QZRrt05Z6wJl3Y17CzGOSeY8RvUJk
-        1cFNZi51EizrZPoR53k8Ho/Hwyj1HyfPJaRcSydKAAAAAElFTkSuQmCC
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIWSURBVGhD7ZjBSt1AFIanrVKkiCBFKHpBxSZRcdW93bp0
+        7TP0HVz6DLrQlHZRW4VSFEHBFpQ0iYJP4KL7tlCFRqqZYwbOBeP8t7lu7pnFfPAtc/wOOjKM8ng8Ho/n
+        PnpdtcpYbRWxuqBYUTfqWC3z57Lod2qsCv+FIpt0YolyQ31Ccd0qvkSxoS5R2EMUXQIFSWjOX3UOt6vz
+        +JLTugMNk/RqTf2sfqOjnNcMGiJtua42Oa8ZNEDaYk394bxm0AAX5Lxm0McuyHnNoI9rvn1EtPuc6HiS
+        KIuI8t5Y5NFfSoNvOpue51QMjL7r1xb8Ab2yyMevdRYscK4NjG67PQiH9trrJDonUo85uQ4Mb3vwAg6U
+        UKfBBCfXgeFtjybgMAl1Ptvi5Dow3GgObxbCYb22OtAXD/8T+vAUDpPwJg8SzrWB8cbPQ3CYhGUWrHKu
+        DYw37o3AYRLqk+gN59rAeOOh7P//u+o8es25NjDemEzBYRLqZGaYc21g/Ps+OEjCf9+DH5yKgQtsPYPD
+        JCzzcIdTMXCBnWE4TMJqgRVOxcAF9h26QmThEqdi4AIuXSFOwjlOxVjxLl0h0uiKTl/1cyrGWsCpK0R4
+        xpmdsd5DHbpCUB7EnNkZ85hUW8ChKwSl04uc2RnzElZ73HXkClGm0Rf6qJ5w5v8xL2HmMcm8x4heIbLq
+        4CZTv3USLOtkbIDzPB6Px+NhlLoFJDQlllz1ZWkAAAAASUVORK5CYII=
 </value>
   </data>
   <data name="toolStripButton_Fit.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
