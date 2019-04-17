@@ -25,7 +25,8 @@ https://unity3d.com/get-unity/download
 
 - Execute compiled binary 
 1. Goto [Source/Compiled] Folder
-2. Run "InviewerDesktopGUI.exe"
+2. Download all files and directories
+3. Run "InviewerDesktopGUI.exe"
 
 ## Usage
 - Mouse Left-Button Drag : Panning
