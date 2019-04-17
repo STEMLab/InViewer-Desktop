@@ -79,8 +79,8 @@ public class ViewDrag : MonoBehaviour
         // Rotate camera along X and Y axis
         if (isRotating)
         {
-            Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin);
-
+            Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin).normalized * 0.3f;
+            
             transform.RotateAround(transform.position, -transform.right, -pos.y * turnSpeed);
             transform.RotateAround(transform.position, -Vector3.up, pos.x * turnSpeed);
         }
@@ -88,7 +88,7 @@ public class ViewDrag : MonoBehaviour
         // Move the camera on it's XY plane
         if (isPanning)
         {
-            Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin);
+            Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin).normalized * 0.3f;
 
             Vector3 move = new Vector3(pos.x * panSpeed, pos.y * panSpeed, 0);
             transform.Translate(-move, Space.Self);
@@ -99,7 +99,7 @@ public class ViewDrag : MonoBehaviour
         {
             if (Camera.main.orthographic == true)
             {
-                Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin);
+                Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin).normalized;
                 Camera.main.orthographicSize -= pos.y * GetRotSpeed();
                 if (Camera.main.orthographicSize < 1)
                 {
@@ -108,7 +108,7 @@ public class ViewDrag : MonoBehaviour
             }
             else
             {
-                Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin);
+                Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin).normalized * 0.1f;
                 Vector3 move = pos.y * zoomSpeed * transform.forward;
                 transform.Translate(move, Space.World);
             }

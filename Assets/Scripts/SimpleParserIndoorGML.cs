@@ -184,7 +184,7 @@ class SimpleParserIndoorGML
                     {
                         // 현재 그리기 모듈에서는 첫점과 끝점이 같을 필요가 없다.
                         // 즉, 중복되는 점을 하나 버림.
-                        tmpPosSet.vertices.RemoveAt(tmpPosSet.vertices.Count - 1);
+                        //tmpPosSet.vertices.RemoveAt(tmpPosSet.vertices.Count - 1);
                     }
 
                         if (reader.LocalName == "LinearRing" ||

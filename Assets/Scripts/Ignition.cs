@@ -24,8 +24,14 @@ public class Ignition : MonoBehaviour
     private Material materialTransitionSpace;
     private Material materialCellSpaceBoundary;
     private Material materialState;
+    private Material materialLine;
     private Shader shaderCullOFF;
     private Shader shaderCullON;
+    private Shader shaderOutline;
+
+    private List<List<Vector3>> outLines;
+    //private List<Vector3> outLinesBegin;
+    //private List<Vector3> outLinesEnd;
 
     private void Awake()
     {
@@ -82,6 +88,8 @@ public class Ignition : MonoBehaviour
 
         shaderCullON = Shader.Find("Standard");
         shaderCullOFF = Resources.Load("Materials/STEM_CullOFF") as Shader;
+        shaderOutline = Resources.Load("Materials/STEM_GL") as Shader;
+        materialLine = Resources.Load("Materials/STEM_GL") as Material;
 
         materialCellSpace = Resources.Load("Materials/CellSpace", typeof(Material)) as Material;
         materialGeneralSpace = Resources.Load("Materials/GeneralSpace", typeof(Material)) as Material;
@@ -93,6 +101,8 @@ public class Ignition : MonoBehaviour
         materialGeneralSpace.shader = shaderCullOFF;
         materialTransitionSpace.shader = shaderCullOFF;
         materialCellSpaceBoundary.shader = shaderCullOFF;
+
+        outLines = new List<List<Vector3>>();
 
         gmlRoot = new GameObject(CommonNames.ROOT);
         gmlRootCellSpace = new GameObject(CommonNames.ROOT_CELLSPACE);
@@ -222,16 +232,19 @@ public class Ignition : MonoBehaviour
             }
 
             // 외곽선
-            var tmpOutLine = tmpObj.AddComponent<LineRenderer>();
-            tmpOutLine.useWorldSpace = false;
-            tmpOutLine.material = new Material(Shader.Find("Sprites/Default"));
-            tmpOutLine.startWidth = 0.1f;
-            tmpOutLine.endWidth = 0.1f;
-            tmpOutLine.startColor = Color.black;
-            tmpOutLine.endColor = Color.black;
+            //var tmpOutLine = tmpObj.AddComponent<LineRenderer>();
+            //tmpOutLine.useWorldSpace = false;
+            //tmpOutLine.material = new Material(Shader.Find("Sprites/Default"));
+            ////tmpOutLine.material.shader = shaderOutline;
+            //tmpOutLine.startWidth = 0.01f;
+            //tmpOutLine.endWidth = 0.01f;
+            //tmpOutLine.startColor = Color.black;
+            //tmpOutLine.endColor = Color.black;
 
-            tmpOutLine.positionCount = geom.vertices.Count();
-            tmpOutLine.SetPositions(geom.vertices.ToArray());
+            //tmpOutLine.positionCount = geom.vertices.Count();
+            //tmpOutLine.SetPositions(geom.vertices.ToArray());
+
+            outLines.Add(geom.vertices);
 
             if (totalBounds == null || totalBounds.min.Equals(new Vector3(0, 0)))
             {
@@ -256,6 +269,57 @@ public class Ignition : MonoBehaviour
         Debug.Log(totalBounds.ToString());        
 
         SendAndReceive.TreeToJSON();
+    }
+
+    //public Material lineMat = new Material("Shader \"Lines/Colored Blended\" {" + "SubShader { Pass { " + "    Blend SrcAlpha OneMinusSrcAlpha " + "    ZWrite Off Cull Off Fog { Mode Off } " + "    BindChannels {" + "      Bind \"vertex\", vertex Bind \"color\", color }" + "} } }");
+    private Material lineMaterial;
+    void CreateLineMaterial()
+    {
+        if (!lineMaterial)
+        {
+            // Unity has a built-in shader that is useful for drawing
+            // simple colored things.
+            Shader shader = Shader.Find("Hidden/Internal-Colored");
+            lineMaterial = new Material(shader);
+            lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+            // Turn on alpha blending
+            lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            // Turn backface culling off
+            lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            // Turn off depth writes
+            lineMaterial.SetInt("_ZWrite", 0);
+            lineMaterial.color = new Color(0, 0, 0);
+        }
+    }
+
+    // Will be called after all regular rendering is done
+    public void OnRenderObject()
+    {
+        CreateLineMaterial();
+        // Apply the line material
+        lineMaterial.SetPass(0);
+
+        if (outLines == null || outLines.Count() == 0)
+            return;
+
+        GL.PushMatrix();
+        // Set transformation matrix for drawing to
+        // match our transform
+        GL.MultMatrix(transform.localToWorldMatrix);
+
+        // Draw lines
+        for (int i = 0; i < outLines.Count(); ++i)
+        {
+            GL.Begin(GL.LINES);
+            for (int j = 0; j < outLines[i].Count() - 1; j++)
+            {
+                GL.Vertex3(outLines[i][j].x, outLines[i][j].y, outLines[i][j].z);
+                GL.Vertex3(outLines[i][j + 1].x, outLines[i][j + 1].y, outLines[i][j + 1].z);
+            }
+            GL.End();
+        }
+        GL.PopMatrix();
     }
 
     public void UpdateStatesSize(float multiple)
