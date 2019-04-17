@@ -2511,9 +2511,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8e65ade131580a429248e28215a5f57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnSpeed: 4
-  panSpeed: 4
-  zoomSpeed: 4
+  turnSpeed: 1
+  panSpeed: 1
+  zoomSpeed: 1
 --- !u!114 &534669908
 MonoBehaviour:
   m_ObjectHideFlags: 0

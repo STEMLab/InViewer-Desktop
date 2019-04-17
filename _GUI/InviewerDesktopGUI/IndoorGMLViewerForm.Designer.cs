@@ -60,6 +60,7 @@
             this.topViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer_Main = new System.Windows.Forms.SplitContainer();
             this.splitContainer_Right = new System.Windows.Forms.SplitContainer();
+            this.richTextBox_IndoorGML = new System.Windows.Forms.RichTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton_OpenFile = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -72,7 +73,6 @@
             this.toolStripButton_Ortho = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton_Query = new System.Windows.Forms.ToolStripButton();
-            this.richTextBox_IndoorGML = new System.Windows.Forms.RichTextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
@@ -159,7 +159,7 @@
             this.transitionSpaceToolStripMenuItem,
             this.cellSpaceBoundaryToolStripMenuItem});
             this.cullingSpacesToolStripMenuItem.Name = "cullingSpacesToolStripMenuItem";
-            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.cullingSpacesToolStripMenuItem.Text = "Back-face Culling";
             // 
             // cellSpaceToolStripMenuItem
@@ -192,6 +192,7 @@
             this.cellSpaceBoundaryToolStripMenuItem.Name = "cellSpaceBoundaryToolStripMenuItem";
             this.cellSpaceBoundaryToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.cellSpaceBoundaryToolStripMenuItem.Text = "Cell Space Boundary";
+            this.cellSpaceBoundaryToolStripMenuItem.Click += new System.EventHandler(this.cellSpaceBoundaryToolStripMenuItem_Click);
             // 
             // stateSizeToolStripMenuItem
             // 
@@ -200,7 +201,7 @@
             this.middleToolStripMenuItem,
             this.smallToolStripMenuItem});
             this.stateSizeToolStripMenuItem.Name = "stateSizeToolStripMenuItem";
-            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.stateSizeToolStripMenuItem.Text = "State Size";
             // 
             // largeToolStripMenuItem
@@ -375,6 +376,22 @@
             this.splitContainer_Right.SplitterDistance = 453;
             this.splitContainer_Right.TabIndex = 0;
             // 
+            // richTextBox_IndoorGML
+            // 
+            this.richTextBox_IndoorGML.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBox_IndoorGML.AutoWordSelection = true;
+            this.richTextBox_IndoorGML.HideSelection = false;
+            this.richTextBox_IndoorGML.Location = new System.Drawing.Point(3, 3);
+            this.richTextBox_IndoorGML.Name = "richTextBox_IndoorGML";
+            this.richTextBox_IndoorGML.ReadOnly = true;
+            this.richTextBox_IndoorGML.Size = new System.Drawing.Size(1296, 174);
+            this.richTextBox_IndoorGML.TabIndex = 0;
+            this.richTextBox_IndoorGML.Text = "";
+            this.richTextBox_IndoorGML.WordWrap = false;
+            this.richTextBox_IndoorGML.SelectionChanged += new System.EventHandler(this.richTextBox_IndoorGML_SelectionChanged);
+            // 
             // toolStrip1
             // 
             this.toolStrip1.AutoSize = false;
@@ -487,30 +504,14 @@
             // 
             // toolStripButton_Query
             // 
+            this.toolStripButton_Query.CheckOnClick = true;
             this.toolStripButton_Query.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton_Query.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton_Query.Image")));
             this.toolStripButton_Query.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton_Query.Name = "toolStripButton_Query";
             this.toolStripButton_Query.Size = new System.Drawing.Size(39, 37);
             this.toolStripButton_Query.Text = "toolStripButton1";
-            this.toolStripButton_Query.Visible = false;
             this.toolStripButton_Query.Click += new System.EventHandler(this.toolStripButton_Query_Click);
-            // 
-            // richTextBox_IndoorGML
-            // 
-            this.richTextBox_IndoorGML.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox_IndoorGML.AutoWordSelection = true;
-            this.richTextBox_IndoorGML.HideSelection = false;
-            this.richTextBox_IndoorGML.Location = new System.Drawing.Point(3, 3);
-            this.richTextBox_IndoorGML.Name = "richTextBox_IndoorGML";
-            this.richTextBox_IndoorGML.ReadOnly = true;
-            this.richTextBox_IndoorGML.Size = new System.Drawing.Size(1296, 174);
-            this.richTextBox_IndoorGML.TabIndex = 0;
-            this.richTextBox_IndoorGML.Text = "";
-            this.richTextBox_IndoorGML.WordWrap = false;
-            this.richTextBox_IndoorGML.SelectionChanged += new System.EventHandler(this.richTextBox_IndoorGML_SelectionChanged);
             // 
             // statusStrip1
             // 
@@ -525,7 +526,7 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(1515, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(1546, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Ready";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;

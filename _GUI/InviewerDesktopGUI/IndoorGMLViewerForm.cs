@@ -63,6 +63,7 @@ namespace InviewerDesktopGUI
                 backgroundWorkerWriter.RunWorkerAsync();
 
                 process = new Process();
+                //process.StartInfo.FileName = @"E:\Develop\InViewer-Desktop\Compiled\Inviewer-Desktop.exe";
                 process.StartInfo.FileName = @"Inviewer-Desktop.exe";
                 process.StartInfo.Arguments = "-parentHWND " + splitContainer_Right.Panel1.Handle.ToInt32() + " " + Environment.CommandLine;
                 process.StartInfo.UseShellExecute = true;
@@ -490,6 +491,8 @@ namespace InviewerDesktopGUI
             SendToUnity(string.Format("VIEW|{0}", lastViewDirection));
         }
 
+
+
         private void toolStripButton_Ortho_Click(object sender, EventArgs e)
         {
             if (((ToolStripButton)sender).CheckState == CheckState.Checked)
@@ -510,6 +513,16 @@ namespace InviewerDesktopGUI
         private void cmdViewOrthogonal()
         {
             SendToUnity("VIEW|ORTHOGONAL");
+        }
+
+        private void cmdQueryOn()
+        {
+            SendToUnity("QUERY|ON");
+        }
+
+        private void cmdQueryOff()
+        {
+            SendToUnity("QUERY|OFF");
         }
 
         private void toolStripButton_RotateView_Click(object sender, EventArgs e)
@@ -601,6 +614,19 @@ namespace InviewerDesktopGUI
                 SendToUnity(string.Format("CULLOFF|{0}", CommonNames.ROOT_TRANSITIONSPACE));
             }
         }
+
+        private void cellSpaceBoundaryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (((ToolStripMenuItem)sender).CheckState == CheckState.Checked)
+            {
+                SendToUnity(string.Format("CULLON|{0}", CommonNames.ROOT_CELLSPACEBOUNDARY));
+            }
+            else
+            {
+                SendToUnity(string.Format("CULLOFF|{0}", CommonNames.ROOT_CELLSPACEBOUNDARY));
+            }
+        }
+
 
         private void treeView_IndoorGML_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -700,7 +726,14 @@ namespace InviewerDesktopGUI
 
         private void toolStripButton_Query_Click(object sender, EventArgs e)
         {
-
+            if (((ToolStripButton)sender).CheckState == CheckState.Checked)
+            {
+                cmdQueryOn();
+            }
+            else
+            {
+                cmdQueryOff();
+            }
         }
 
         private void richTextBox_IndoorGML_SelectionChanged(object sender, EventArgs e)

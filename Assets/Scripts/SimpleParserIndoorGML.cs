@@ -11,6 +11,8 @@ class SimpleParserIndoorGML
 
     public List<PosBasedEntity> PosBasedEntities { get; }
 
+    public Vector3 FirstPoint;
+
     private void log(int level, string value, TAG_TYPE tagType)
     {
         if (DebugMode == false) return;
@@ -53,6 +55,8 @@ class SimpleParserIndoorGML
 
     public void Load()
     {
+        FirstPoint = new Vector3(-999, -999, -999);
+
         int level = 1;
         Stack<string> tmpStack = new Stack<string>();
         string currentID = "";
@@ -155,6 +159,15 @@ class SimpleParserIndoorGML
                         float.TryParse(values[0], out tmpObj.x);
                         float.TryParse(values[1], out tmpObj.z);
                         float.TryParse(values[2], out tmpObj.y);
+
+                        if (FirstPoint.Equals(new Vector3(-999, -999, -999)))
+                        {
+                            FirstPoint = new Vector3(tmpObj.x, tmpObj.y, tmpObj.z);
+                        }
+
+                        tmpObj.x -= FirstPoint.x;
+                        tmpObj.y -= FirstPoint.y;
+                        tmpObj.z -= FirstPoint.z;
 
                         tmpPosSet.vertices.Add(tmpObj);
                     }

@@ -151,8 +151,8 @@ public class Ignition : MonoBehaviour
                 tmpTransition.useWorldSpace = false;
                 tmpTransition.tag = "TAG_TRANSITION";
                 tmpTransition.material = new Material(Shader.Find("Sprites/Default"));
-                tmpTransition.startWidth = 1f;
-                tmpTransition.endWidth = 0.1f;
+                tmpTransition.startWidth = 0.1f;
+                tmpTransition.endWidth = 0.01f;
                 tmpTransition.startColor = Color.red;
                 tmpTransition.endColor = Color.green;
 
@@ -253,7 +253,7 @@ public class Ignition : MonoBehaviour
 
         UpdateStatesSize(1);
 
-        Debug.Log(totalBounds.ToString());
+        Debug.Log(totalBounds.ToString());        
 
         SendAndReceive.TreeToJSON();
     }
