@@ -7,19 +7,27 @@ enum DATA_TYPE { Undefined, CELLSPACE, GENERALSPACE, TRANSITIONSPACE, CELLSPACEB
 
 class PosBasedEntity
 {
-    public PosBasedEntity(string pId, string name, DATA_TYPE type, bool isInterior = false)
+    public PosBasedEntity(string pId, string name, DATA_TYPE type)
     {
         id = pId;
         localName = name;
         spaceType = type;
-        interior = isInterior;
 
-        vertices = new List<Vector3>();
+        texture = string.Empty;
+
+        exterior = new List<Vector3>();
+        interiors = new List<List<Vector3>>();
+        //interiors.Add(new List<Vector3>());
+
+        texture_coordinates = new List<Vector2>();
     }
     public string id { get; }
     public string localName { get; }
     public DATA_TYPE spaceType { get; }
-    public bool interior { get; }
+    public Vector3 center { get; }
+    public List<Vector3> exterior { get; set; }
+    public List<List<Vector3>> interiors { get; set; }
 
-    public List<Vector3> vertices { get; set; }
+    public string texture { get; set; }
+    public List<Vector2> texture_coordinates { get; set; }
 }

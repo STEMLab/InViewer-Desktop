@@ -159,7 +159,7 @@
             this.transitionSpaceToolStripMenuItem,
             this.cellSpaceBoundaryToolStripMenuItem});
             this.cullingSpacesToolStripMenuItem.Name = "cullingSpacesToolStripMenuItem";
-            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.cullingSpacesToolStripMenuItem.Text = "Back-face Culling";
             // 
             // cellSpaceToolStripMenuItem
@@ -201,7 +201,7 @@
             this.middleToolStripMenuItem,
             this.smallToolStripMenuItem});
             this.stateSizeToolStripMenuItem.Name = "stateSizeToolStripMenuItem";
-            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.stateSizeToolStripMenuItem.Text = "State Size";
             // 
             // largeToolStripMenuItem

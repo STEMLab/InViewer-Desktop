@@ -70,7 +70,7 @@ public class SendAndReceive : MonoBehaviour
                 // ㄴState
                 // ㄴTransition
                 //StringBuilder sb = new StringBuilder();
-                Ignition.DoMoveViewPoint(1);
+                mainFuncs.DoMoveViewPoint(1);
                 // Unity3D에서 Tree갱신을 기다려 준다.
                 StartCoroutine(DelayAndUpdateTree());
             }
@@ -112,7 +112,7 @@ public class SendAndReceive : MonoBehaviour
                 }
                 else
                 { 
-                    Ignition.DoMoveViewPoint(Convert.ToInt32(guiParam));
+                    mainFuncs.DoMoveViewPoint(Convert.ToInt32(guiParam));
                 }
             }
             else if (guiCmd.Equals("STATE"))

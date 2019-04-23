@@ -63,7 +63,6 @@ namespace InviewerDesktopGUI
                 backgroundWorkerWriter.RunWorkerAsync();
 
                 process = new Process();
-                //process.StartInfo.FileName = @"E:\Develop\InViewer-Desktop\Compiled\Inviewer-Desktop.exe";
                 process.StartInfo.FileName = @"Inviewer-Desktop.exe";
                 process.StartInfo.Arguments = "-parentHWND " + splitContainer_Right.Panel1.Handle.ToInt32() + " " + Environment.CommandLine;
                 process.StartInfo.UseShellExecute = true;
@@ -579,6 +578,19 @@ namespace InviewerDesktopGUI
             SendToUnity(string.Format("VIEW|{0}", lastViewDirection));
         }
 
+
+        private void cellSpaceBoundaryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (((ToolStripMenuItem)sender).CheckState == CheckState.Checked)
+            {
+                SendToUnity(string.Format("CULLON|{0}", CommonNames.ROOT_CELLSPACEBOUNDARY));
+            }
+            else
+            {
+                SendToUnity(string.Format("CULLOFF|{0}", CommonNames.ROOT_CELLSPACEBOUNDARY));
+            }
+        }
+
         private void cellSpaceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if(((ToolStripMenuItem)sender).CheckState == CheckState.Checked)
@@ -614,19 +626,6 @@ namespace InviewerDesktopGUI
                 SendToUnity(string.Format("CULLOFF|{0}", CommonNames.ROOT_TRANSITIONSPACE));
             }
         }
-
-        private void cellSpaceBoundaryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (((ToolStripMenuItem)sender).CheckState == CheckState.Checked)
-            {
-                SendToUnity(string.Format("CULLON|{0}", CommonNames.ROOT_CELLSPACEBOUNDARY));
-            }
-            else
-            {
-                SendToUnity(string.Format("CULLOFF|{0}", CommonNames.ROOT_CELLSPACEBOUNDARY));
-            }
-        }
-
 
         private void treeView_IndoorGML_AfterSelect(object sender, TreeViewEventArgs e)
         {

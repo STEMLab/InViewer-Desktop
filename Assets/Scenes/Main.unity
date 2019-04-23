@@ -1906,7 +1906,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button
+  m_Text: User-Funcs A
 --- !u!222 &380865254
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2480,8 +2480,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534669902}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalRotation: {x: 0.13628006, y: 0.23522483, z: -0.033330977, w: 0.961762}
+  m_LocalPosition: {x: 162.25023, y: 88.8509, z: 158.7265}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -2514,6 +2514,7 @@ MonoBehaviour:
   turnSpeed: 1
   panSpeed: 1
   zoomSpeed: 1
+  isActive: 0
 --- !u!114 &534669908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2899,7 +2900,7 @@ GameObject:
   - component: {fileID: 726012968}
   - component: {fileID: 726012967}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Test_Button_A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2965,13 +2966,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 40814928}
-        m_MethodName: TestFunc
-        m_Mode: 1
+      - m_Target: {fileID: 40814926}
+        m_MethodName: DoMoveViewPoint
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -5875,7 +5876,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1444112775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7200,7 +7201,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button2
+  m_Text: User-Funcs B
 --- !u!222 &1743188218
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7537,7 +7538,7 @@ GameObject:
   - component: {fileID: 1837199803}
   - component: {fileID: 1837199802}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: Test_Button_B
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
