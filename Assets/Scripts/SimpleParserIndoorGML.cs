@@ -233,11 +233,16 @@ class SimpleParserIndoorGML
                         else if (values.Length == 2)
                         {
                             Vector2 tmpObj = new Vector2();
+
                             // TextureCoordinate.
+                            //float.TryParse(values[0], out tmpObj.y);
+                            //float.TryParse(values[1], out tmpObj.x);
+                            //tmpObj.x = 1 - tmpObj.x;
+
                             float.TryParse(values[0], out tmpObj.y);
                             float.TryParse(values[1], out tmpObj.x);
 
-                            tmpObj.x *= -1;
+                            tmpObj.x = 1 - tmpObj.x;
 
                             tmpPosSet.texture_coordinates.Add(tmpObj);
                         }

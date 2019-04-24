@@ -228,24 +228,12 @@ public class Ignition : MonoBehaviour
                 poly.holesUVs = new List<List<Vector2>>();
                 for (int i = 0; i < geom.interiors.Count(); i++)
                 {
-                    // 읽는 시점에서 뒤집기를 고려해 보자.
-                    //geom.interiors[i].Reverse();
-
                     var centerAdjHolePos = new List<Vector3>(RecenterOfVectors(geom.interiors[i], myCenter));
-                    Debug.Log("Hole WTF: " + geom.id);
+                    Debug.Log("Hole: " + geom.id);
                     poly.holes.Add(centerAdjHolePos);
                     poly.holesUVs.Add(new List<Vector2>());
                 }
             }
-
-            //if (geom.vertices.Count() == 4)
-            //{
-            //    poly.outsideUVs = new List<Vector2>();
-            //    poly.outsideUVs.Add(new Vector2(0, 1));
-            //    poly.outsideUVs.Add(new Vector2(1, 1));
-            //    poly.outsideUVs.Add(new Vector2(1, 0));
-            //    poly.outsideUVs.Add(new Vector2(0, 0));
-            //}
 
             if ((geom.exterior.Count() == geom.texture_coordinates.Count()))
             {
@@ -254,9 +242,8 @@ public class Ignition : MonoBehaviour
             }
             else if (geom.texture_coordinates.Count() != 0 && string.IsNullOrEmpty(geom.texture) == false)
             {
-                Debug.Log(string.Format("WTF: {0} (tex:{1} vs outline:{2})", geom.id, geom.texture_coordinates.Count(), geom.exterior.Count()));
+                Debug.Log(string.Format("Whole Match Check: {0} (tex:{1} vs outline:{2})", geom.id, geom.texture_coordinates.Count(), geom.exterior.Count()));
             }
-
 
             //poly.outsideUVs = geom.texture_coordinates;
 
@@ -299,8 +286,6 @@ public class Ignition : MonoBehaviour
             }
 
             // 모든 생성 객체는 선택가능하도록 함
-            //tmpObj.AddComponent<IndoorGmlSelectable>();
-            //tmpObj.transform.position = faceCenter;
             partObj.AddComponent<MeshCollider>();
             partObj.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             partObj.GetComponent<MeshRenderer>().receiveShadows = false;
@@ -343,88 +328,6 @@ public class Ignition : MonoBehaviour
                 partObj.tag = "TAG_CELLSPACEBOUNDARY";
 
                 var myMesh = partObj.GetComponent<MeshFilter>();
-
-                Vector2[] uvs = new Vector2[4];
-                for (int i = 0; i < 4; i++)
-                {
-                    uvs[i] = new Vector2(-99, -99);
-                }
-
-                Vector3 firstCorner = new Vector3();
-                Vector3 secondCorner = new Vector3();
-
-                // 사각형 형태의 mesh 에 대해서만 TextureSurface 허용
-                if (myMesh.mesh.triangles.Length == 6)
-                {
-                    // 겹치는 vertices 2개 구함
-                    int matchCnt = 0;
-                    for (int i = 0; i < 3; i++)
-                    {
-                        for (int j = 3; j < 6; j++)
-                        {
-                            if (myMesh.mesh.triangles[i] == myMesh.mesh.triangles[j])
-                            {
-                                if (matchCnt == 0)
-                                {
-                                    firstCorner = myMesh.mesh.vertices[i];
-                                    uvs[myMesh.mesh.triangles[i]] = new Vector2(1, 1);
-                                    matchCnt++;
-                                }
-                                else if (matchCnt == 1)
-                                {
-                                    secondCorner = myMesh.mesh.vertices[i];
-                                    uvs[myMesh.mesh.triangles[i]] = new Vector2(0, 0);
-                                    i = 3;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    matchCnt = 0;
-
-                    for (int i = 0; i < 5; i++)
-                    {
-                        if (uvs[i].x == -99)
-                        {
-                            if (matchCnt == 0)
-                            {
-                                uvs[i] = new Vector2(0, 1);
-                                matchCnt++;
-                            }
-                            else
-                            {
-                                // 2개 비어 있고 끝
-                                uvs[i] = new Vector2(1, 0);
-                                break;
-                            }
-                        }
-                    }
-
-                    if (firstCorner.y < secondCorner.y)
-                    {
-                        // 뒤집힌 경우 uv를 뒤집는다.
-                        for (int i = 0; i < 4; i++)
-                        {
-                            if (uvs[i].Equals(new Vector2(0, 0)))
-                            {
-                                uvs[i] = new Vector2(1, 1);
-                            }
-                            if (uvs[i].Equals(new Vector2(1, 1)))
-                            {
-                                uvs[i] = new Vector2(0, 0);
-                            }
-                            if (uvs[i].Equals(new Vector2(0, 1)))
-                            {
-                                uvs[i] = new Vector2(1, 0);
-                            }
-                            if (uvs[i].Equals(new Vector2(1, 0)))
-                            {
-                                uvs[i] = new Vector2(0, 1);
-                            }
-                        }
-                    }
-                }
 
                 lastSolid.tag = "TAG_CELLSPACEBOUNDARY";
                 lastSolid.transform.parent = gmlRootCellSpaceBoundary.transform;
