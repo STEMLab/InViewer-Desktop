@@ -151,10 +151,10 @@ namespace UnityEngine.UI.Extensions {
 
             //GUI 수준에서 ON OFF 토글이 반대로 전송되는 듯 하다. 토글이 뭔가 매끄럽지가 않다. 아무튼 테스트 테스트....
             
-            if (Camera.main.GetComponent<ViewDrag>().isActive == true)
-            {
-                return;
-            }
+            //if (Camera.main.GetComponent<ViewDrag>().isActive == true)
+            //{
+            //    return;
+            //}
 
             //if (Camera.main.GetComponent<ViewDrag>().enabled == true)
             //{

@@ -242,7 +242,27 @@ class SimpleParserIndoorGML
                             float.TryParse(values[0], out tmpObj.y);
                             float.TryParse(values[1], out tmpObj.x);
 
-                            tmpObj.x = 1 - tmpObj.x;
+
+                            //if (tmpObj.x > 0.5f && tmpObj.x < 1.1f)
+                            //{
+                            //    tmpObj.x = 1;
+                            //}
+                            //else if (tmpObj.x < 0.5f && tmpObj.x >= 0f)
+                            //{
+                            //    tmpObj.x = 0;
+                            //}
+
+                            //if (tmpObj.y > 0.5f && tmpObj.y < 1.1f)
+                            //{
+                            //    tmpObj.y = 1;
+                            //}
+                            //else if (tmpObj.y < 0.5f && tmpObj.y >= 0)
+                            //{
+                            //    tmpObj.y = 0;
+                            //}
+
+
+                            //tmpObj.y = 1 - tmpObj.y;
 
                             tmpPosSet.texture_coordinates.Add(tmpObj);
                         }

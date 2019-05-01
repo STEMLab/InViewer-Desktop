@@ -179,7 +179,7 @@ public class SendAndReceive : MonoBehaviour
 
         if (obj.transform.parent.name.Equals(CommonNames.ROOT_STATE))
         {
-            float state_size = mainFuncs.GetUnitSize();
+            float state_size = mainFuncs.quickParser.GetUnitSize();
             obj.transform.localScale = new Vector3(state_size, state_size, state_size);
         }
         else
@@ -225,7 +225,7 @@ public class SendAndReceive : MonoBehaviour
         
         if (targetObj.tag.Equals("TAG_STATE"))
         {
-            resultPos = targetObj.transform.position - mainFuncs.GetUnitSize() * 5 * (Quaternion.Euler(resultRot) * Vector3.forward);
+            resultPos = targetObj.transform.position - mainFuncs.quickParser.GetUnitSize() * 5 * (Quaternion.Euler(resultRot) * Vector3.forward);
         }
 
         // 선택시 하이라이트.

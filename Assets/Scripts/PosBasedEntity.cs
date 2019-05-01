@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//                        , SOLID    , SOLID       , SOLID          , POLYGON            POINT, LINESTRING
-enum DATA_TYPE { Undefined, CELLSPACE, GENERALSPACE, TRANSITIONSPACE, CELLSPACEBOUNDARY, STATE, TRANSITION };
+//                        , SOLID    , SOLID       , SOLID          , POLYGON          , POLYGON         POINT, LINESTRING
+enum DATA_TYPE { Undefined, CELLSPACE, GENERALSPACE, TRANSITIONSPACE, CELLSPACEBOUNDARY, TEXTURESURFACE, STATE, TRANSITION };
 
 class PosBasedEntity
 {
@@ -21,6 +21,7 @@ class PosBasedEntity
 
         texture_coordinates = new List<Vector2>();
     }
+
     public string id { get; }
     public string localName { get; }
     public DATA_TYPE spaceType { get; }
