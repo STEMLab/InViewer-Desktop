@@ -9,7 +9,11 @@ using UnityEngine.Networking;
 
 public class QuickParser : MonoBehaviour
 {
-    Vector3 firstPos;
+    //Vector3 firstPos;
+    double firstPosX;
+    double firstPosY;
+    double firstPosZ;
+
     public static Bounds sceneBound;
 
     static private List<List<Vector3>> outLines;
@@ -49,7 +53,7 @@ public class QuickParser : MonoBehaviour
         List<Vector3> localOutlines = new List<Vector3>();
         List<List<Vector3>> localHoles = new List<List<Vector3>>();
 
-        while (isEndElement(reader, "Polygon") == false)
+        while (isEndElement(reader, "Polygon") == false && isEndElement(reader, "PolygonPatch") == false)
         {
             reader.Read();
 
@@ -69,6 +73,11 @@ public class QuickParser : MonoBehaviour
 
                         localOutlines.Add(unityVector3d);
                     }
+                    else if(isStartElement(reader, "posList"))
+                    {
+                        reader.Read();
+                        localOutlines = GetPosList3D(reader);
+                    }
                 }
             }
 
@@ -85,6 +94,14 @@ public class QuickParser : MonoBehaviour
                         Vector3 unityVector3d = GetPos3D(reader);
 
                         localHoles.Last().Add(unityVector3d);
+                    }
+                    else if (isStartElement(reader, "posList"))
+                    {
+                        reader.Read();
+                        //var lastHole = localHoles.Last();
+                        //lastHole = GetPosList3D(reader);
+                        int lastHoleIdx = localHoles.Count;
+                        localHoles[lastHoleIdx-1] = GetPosList3D(reader);
                     }
                 }
             }
@@ -115,25 +132,65 @@ public class QuickParser : MonoBehaviour
         return unityVector2d;
     }
 
+    private List<Vector3> GetPosList3D(XmlReader reader)
+    {
+        string[] gmlVector3d = reader.Value.Trim().Split(' ');
+        List<Vector3> vector3s = new List<Vector3>();
+        for (int i = 0; i < gmlVector3d.Length; i += 3)
+        {
+            string[] vs = new string[3];
+            vs[0] = gmlVector3d[i];
+            vs[1] = gmlVector3d[i + 1];
+            vs[2] = gmlVector3d[i + 2];
+
+            vector3s.Add(GetPos3DCore(vs));
+        }
+
+        return vector3s;
+    }
+
     private Vector3 GetPos3D(XmlReader reader)
     {
         string[] gmlVector3d = reader.Value.Trim().Split(' ');
-        Vector3 unityVector3d = new Vector3();
-
-        // Unity3D Vector Style.
-        float.TryParse(gmlVector3d[0], out unityVector3d.x);
-        float.TryParse(gmlVector3d[1], out unityVector3d.z);
-        float.TryParse(gmlVector3d[2], out unityVector3d.y);
-
-        if (firstPos.Equals(Vector3.zero))
-        {
-            firstPos = unityVector3d;
-        }
-        Vector3 relativeUnityVector3d = unityVector3d - firstPos;
-
-        sceneBound.Encapsulate(relativeUnityVector3d);
+        Vector3 relativeUnityVector3d = GetPos3DCore(gmlVector3d);
 
         return relativeUnityVector3d;
+    }
+
+    private Vector3 GetPos3DCore(string[] gmlVector3d)
+    {
+        //Vector3 unityVector3d = new Vector3();
+        double unityVectorX;
+        double unityVectorY;
+        double unityVectorZ;
+
+        // Unity3D Vector Style.
+        double.TryParse(gmlVector3d[0], out unityVectorX);
+        double.TryParse(gmlVector3d[1], out unityVectorZ);
+        double.TryParse(gmlVector3d[2], out unityVectorY);
+
+        if (firstPosX == 0 && firstPosY == 0 && firstPosZ == 0)
+        {
+            firstPosX = unityVectorX;
+            firstPosY = unityVectorY;
+            firstPosZ = unityVectorZ;
+        }
+
+        //srs3857 이런거 들어가면 좀 특수하게 처리 해야겠다.
+        //하아.... 일단 더블형태로 firstPos를 무식하게 저장해 놓고
+        //더블 형태로 빼기를 하고.... -_- 10 정도 곱하기를 하던가 해야겠다.
+
+        //Vector3 relativeUnityVector3d = unityVector3d - firstPos;
+        double deltaX = unityVectorX - firstPosX;
+        double deltaY = unityVectorY - firstPosY;
+        double deltaZ = unityVectorZ - firstPosZ;
+
+        Vector3 scaledVector = new Vector3(Convert.ToSingle(deltaX),
+            Convert.ToSingle(deltaY),
+            Convert.ToSingle(deltaZ));
+        
+        sceneBound.Encapsulate(scaledVector);
+        return scaledVector;
     }
 
     private void OnDrawGizmos()
@@ -154,7 +211,11 @@ public class QuickParser : MonoBehaviour
 
     public void Load(string fileUrl)
     {
-        firstPos = new Vector3();
+        //firstPos = new Vector3();
+        firstPosX = 0;
+        firstPosY = 0;
+        firstPosZ = 0;
+
         sceneBound = new Bounds();
 
         outLines = new List<List<Vector3>>();
@@ -219,6 +280,11 @@ public class QuickParser : MonoBehaviour
 
                 Vector3 unityVector3d = GetPos3D(reader);
                 localLineString.Add(unityVector3d);
+            }
+            else if (isStartElement(reader, "posList"))
+            {
+                reader.Read();
+                localLineString = GetPosList3D(reader);
             }
         }
 
@@ -310,7 +376,7 @@ public class QuickParser : MonoBehaviour
                 while (isEndElement(reader, "Solid") == false)
                 {
                     reader.Read();
-                    if (isStartElement(reader, "Polygon"))
+                    if (isStartElement(reader, "Polygon") || isStartElement(reader, "PolygonPatch"))
                     {
                         var polygon = OnPolygon(reader);
                         GameObject genPolygon = Poly2Mesh.CreateGameObject(polygon);
@@ -351,9 +417,13 @@ public class QuickParser : MonoBehaviour
             {
                 reader.Read();
                 localName = reader.GetAttribute("gml:id");
+                if(localName == "ROOM80-TEXTURE-FLOOR")
+                {
+                    Debug.Log("Hit");
+                }
             }
 
-            if (isStartElement(reader, "Polygon"))
+            if (isStartElement(reader, "Polygon") || isStartElement(reader, "PolygonPatch"))
             {
                 localPolygon = OnPolygon(reader);
             }
@@ -420,7 +490,7 @@ public class QuickParser : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(localFileName) == false)
         {
-            Debug.Log(GetDirectoryName() + "\\" + localFileName);
+            //Debug.Log(GetDirectoryName() + "\\" + localFileName);
             IEnumerator tmpRunner = ApplyTexture(cellSpaceBoundary, GetDirectoryName() + "\\" + localFileName);
             StartCoroutine(tmpRunner);
         } else

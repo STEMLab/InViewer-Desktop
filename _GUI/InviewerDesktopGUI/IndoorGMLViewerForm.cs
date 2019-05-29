@@ -353,6 +353,7 @@ namespace InviewerDesktopGUI
                 this.CheckAllChildNodes(e.Node, e.Node.Checked);
 
                 StringBuilder sb = new StringBuilder();
+                int cnt = 0;
 
                 if (e.Node.Checked == true)
                 {
@@ -363,20 +364,35 @@ namespace InviewerDesktopGUI
                     sb.Append("HIDE|");
                 }
 
-                foreach (TreeNode node in e.Node.Nodes)
+                if (e.Node.Text == CommonNames.ROOT_CELLSPACE
+                    || e.Node.Text == CommonNames.ROOT_CELLSPACEBOUNDARY
+                    || e.Node.Text == CommonNames.ROOT_GENERALSPACE
+                    || e.Node.Text == CommonNames.ROOT_STATE
+                    || e.Node.Text == CommonNames.ROOT_TRANSITION
+                    || e.Node.Text == CommonNames.ROOT_TRANSITIONSPACE
+                    )
                 {
-                    if (node.Nodes.Count > 0)
+                    sb.Append(e.Node.Text);
+                }
+                else
+                {
+                    foreach (TreeNode node in e.Node.Nodes)
                     {
-                        foreach (TreeNode leaf in node.Nodes)
+                        if (node.Nodes.Count > 0)
                         {
-                            sb.Append(leaf.Text);
+                            foreach (TreeNode leaf in node.Nodes)
+                            {
+                                cnt++;
+                                sb.Append(leaf.Text);
+                                sb.Append(' ');
+                            }
+                        }
+                        else
+                        {
+                            cnt++;
+                            sb.Append(node.Text);
                             sb.Append(' ');
                         }
-                    }
-                    else
-                    {
-                        sb.Append(node.Text);
-                        sb.Append(' ');
                     }
                 }
 

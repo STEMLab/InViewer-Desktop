@@ -10,6 +10,8 @@ using System.Threading;
 using System.Text;
 using Newtonsoft.Json;
 using DG.Tweening;
+using System.IO;
+using System.IO.Compression;
 
 public class SendAndReceive : MonoBehaviour
 {
@@ -47,6 +49,11 @@ public class SendAndReceive : MonoBehaviour
         mainFuncs = GetComponent<Ignition>();
     }
 
+    public void TestFuncB()
+    {
+        dataFromGUI = "HIDE|State";
+    }
+
     void Update()
     {
         if (dataFromGUI != null)
@@ -77,17 +84,53 @@ public class SendAndReceive : MonoBehaviour
             else if (guiCmd.Equals("SHOW"))
             {
                 string[] showObjects = guiParam.Split(' ');
-                foreach (string id in showObjects)
+
+                if (showObjects.Length == 1 && (
+                    showObjects[0].Equals(CommonNames.ROOT_CELLSPACE)
+                    || showObjects[0].Equals(CommonNames.ROOT_CELLSPACEBOUNDARY)
+                    || showObjects[0].Equals(CommonNames.ROOT_GENERALSPACE)
+                    || showObjects[0].Equals(CommonNames.ROOT_STATE)
+                    || showObjects[0].Equals(CommonNames.ROOT_TRANSITION)
+                    || showObjects[0].Equals(CommonNames.ROOT_TRANSITIONSPACE)))
                 {
-                    ShowObject(id);
+                    var root = GameObject.Find(showObjects[0].TrimEnd()).transform;
+                    for (int i = 0; i < root.childCount; i++)
+                    {
+                        ShowObject(root.GetChild(i).gameObject);
+                    }
+                }
+                else
+                {
+                    foreach (string id in showObjects)
+                    {
+                        ShowObject(id);
+                    }
                 }
             }
             else if (guiCmd.Equals("HIDE"))
             {
-                string[] showObjects = guiParam.Split(' ');
-                foreach (string id in showObjects)
+                string[] hideObjects = guiParam.Split(' ');
+
+                if (hideObjects.Length == 1 && (
+                    hideObjects[0].Equals(CommonNames.ROOT_CELLSPACE)
+                    || hideObjects[0].Equals(CommonNames.ROOT_CELLSPACEBOUNDARY)
+                    || hideObjects[0].Equals(CommonNames.ROOT_GENERALSPACE)
+                    || hideObjects[0].Equals(CommonNames.ROOT_STATE)
+                    || hideObjects[0].Equals(CommonNames.ROOT_TRANSITION)
+                    || hideObjects[0].Equals(CommonNames.ROOT_TRANSITIONSPACE)))
                 {
-                    HideObject(id);
+                    var root = GameObject.Find(hideObjects[0].TrimEnd()).transform;
+                    for (int i = 0; i < root.childCount; i++)
+                    {
+                        HideObject(root.GetChild(i).gameObject);
+                    }
+                }
+                else
+                {
+                    foreach (string id in hideObjects)
+                    {
+                        HideObject(id);
+                    }
                 }
             }
             else if (guiCmd.Equals("GOTO"))
@@ -167,16 +210,26 @@ public class SendAndReceive : MonoBehaviour
         SendToGUI(TreeToJSON());
     }
 
+    public void HideObject(GameObject obj)
+    {
+        obj.transform.localScale = new Vector3(0, 0, 0);
+    }
+
     public void HideObject(string id)
     {
         var obj = GameObject.Find(id);
-        obj.transform.localScale = new Vector3(0, 0, 0);
+        HideObject(obj);
     }
 
     public void ShowObject(string id)
     {
         var obj = GameObject.Find(id);
 
+        ShowObject(obj);
+    }
+
+    public void ShowObject(GameObject obj)
+    {
         if (obj.transform.parent.name.Equals(CommonNames.ROOT_STATE))
         {
             float state_size = mainFuncs.quickParser.GetUnitSize();
@@ -186,6 +239,7 @@ public class SendAndReceive : MonoBehaviour
         {
             obj.transform.localScale = new Vector3(1, 1, 1);
         }
+
     }
 
     public void SelectObject(string targetObjName, bool zoomAction)

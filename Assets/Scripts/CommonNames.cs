@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 static class CommonNames
 {
-    public static string ROOT = "Root";
-    public static string ROOT_CELLSPACE = "CellSpace";
-    public static string ROOT_GENERALSPACE = "GeneralSpace";
-    public static string ROOT_TRANSITIONSPACE = "TransitionSpace";
-    public static string ROOT_CELLSPACEBOUNDARY = "CellSpaceBoundary";
-    public static string ROOT_STATE = "State";
-    public static string ROOT_TRANSITION = "Transition";
+    public const string ROOT = "Root";
+    public const string ROOT_CELLSPACE = "CellSpace";
+    public const string ROOT_GENERALSPACE = "GeneralSpace";
+    public const string ROOT_TRANSITIONSPACE = "TransitionSpace";
+    public const string ROOT_CELLSPACEBOUNDARY = "CellSpaceBoundary";
+    public const string ROOT_STATE = "State";
+    public const string ROOT_TRANSITION = "Transition";
 }
 

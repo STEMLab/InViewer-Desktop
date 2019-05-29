@@ -60,7 +60,7 @@ public static class CommonObjs
 
         // Materials
 
-        shaderCullON = Shader.Find("Standard");
+        shaderCullON = Resources.Load("Materials/STEM_CullOn") as Shader;
         shaderCullOFF = Resources.Load("Materials/STEM_CullOFF") as Shader;
 
         materialCellSpace = Resources.Load("Materials/CellSpace", typeof(Material)) as Material;
