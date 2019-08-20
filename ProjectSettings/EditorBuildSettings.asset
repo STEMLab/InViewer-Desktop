@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scenes/Main-VerA.unity
+    guid: 6e9e1b091c04fbf4392b58017aa7a233
   m_configObjects: {}
