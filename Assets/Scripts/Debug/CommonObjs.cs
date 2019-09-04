@@ -28,6 +28,7 @@ public static class CommonObjs
     public static GameObject gmlRootCellSpaceBoundary;
     public static GameObject gmlRootState;
     public static GameObject gmlRootTransition;
+    public static GameObject gmlRootFloor;
 
     public static Material materialCellSpace;
     public static Material materialGeneralSpace;
@@ -50,6 +51,7 @@ public static class CommonObjs
         gmlRootCellSpaceBoundary = new GameObject(CommonNames.ROOT_CELLSPACEBOUNDARY);
         gmlRootState = new GameObject(CommonNames.ROOT_STATE);
         gmlRootTransition = new GameObject(CommonNames.ROOT_TRANSITION);
+        gmlRootFloor = new GameObject(CommonNames.ROOT_FLOOR);
 
         gmlRootCellSpace.transform.parent = gmlRoot.transform;
         gmlRootGeneralSpace.transform.parent = gmlRoot.transform;
@@ -57,6 +59,7 @@ public static class CommonObjs
         gmlRootCellSpaceBoundary.transform.parent = gmlRoot.transform;
         gmlRootState.transform.parent = gmlRoot.transform;
         gmlRootTransition.transform.parent = gmlRoot.transform;
+        // gmlRootFloor.transform.parent = gmlRoot.transform;
 
         // Materials
 

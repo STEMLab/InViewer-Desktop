@@ -251,6 +251,47 @@ public class QuickParser : MonoBehaviour
                 }
             }
         }
+
+        //GetFloors();
+    }
+
+    public void GetFloors()
+    {
+        var rootFloor = CommonObjs.gmlRootFloor.transform;
+        Dictionary<string, int> floorDict = new Dictionary<string, int>();
+
+        // floor 루트 객체에서 모든 객체들에 대한 층높이 통계를 구한다.
+        for (int i=0; i< rootFloor.childCount; i++)
+        {
+            string thisHeight = rootFloor.GetChild(i).name.Split('_')[0];
+            if (floorDict.ContainsKey(thisHeight))
+            {
+                floorDict[thisHeight] += 1;
+            } else {
+                floorDict.Add(thisHeight, 1);
+                
+            }
+        }
+
+        // 통계 결과에 따라 층별 자식노드를 만들고 재분류를 실시
+        //var floorNames = Enumerable.Range(1, floorDict.Count).Select(x => x + "F");
+        
+        //foreach (string floorName in floorNames)
+        //{
+        //    GameObject thisFloor = new GameObject(floorName);
+        //}
+
+        Debug.Log(floorDict);
+    }
+
+    public void RegisterFloorName(string floorName)
+    {
+        GameObject thisFloor = new GameObject(floorName);
+    }
+
+    private void LoggerInt(int num)
+    {
+        Debug.Log("Debug: " + num);
     }
     
     public float GetUnitSize()
@@ -373,33 +414,66 @@ public class QuickParser : MonoBehaviour
                 int faceCnt = 1;
                 solid.name = localName;
                 reader.Read();
+
+                float lowestHeight = float.MaxValue;
+                string lowestFaceName = "";
+                Poly2Mesh.Polygon floorPolygon = new Poly2Mesh.Polygon();
+
                 while (isEndElement(reader, "Solid") == false)
                 {
                     reader.Read();
                     if (isStartElement(reader, "Polygon") || isStartElement(reader, "PolygonPatch"))
                     {
-                        var polygon = OnPolygon(reader);
+                        Poly2Mesh.Polygon polygon = OnPolygon(reader);
                         GameObject genPolygon = Poly2Mesh.CreateGameObject(polygon);
-                        genPolygon.name = string.Format("{0}_Face:{1}", localName, faceCnt++);
 
+                        genPolygon.name = string.Format("{0}_Face:{1}", localName, faceCnt++);
                         genPolygon.transform.parent = solid.transform;
 
-                        if (localType.Equals("TransitionSpace"))
+                        // 각 솔리드에서 가장 낮은 면을 바닥으로 잡음.
+                        // 조금은 기울어진 바닥이라 할지라도 잡아낼 수 있게끔한게 의도.
+                        // 현재까지의 모든 데이터는 바닥이 모두 평면으로 되어 있음.
+                        float thisMinY = polygon.outside.Average(v => v.y);
+                        if (thisMinY < lowestHeight)
                         {
-                            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialTransitionSpace;
+                            lowestHeight = thisMinY;
+                            floorPolygon = polygon;
+                            lowestFaceName = localName;
                         }
-                        else if (localType.Equals("GeneralSpace"))
-                        {
-                            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialGeneralSpace;
-                        }
-                        else
-                        {
-                            // CellSpace
-                            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialCellSpace;
-                        }
+                        ApplyCellSpaceMaterial(localType, genPolygon);
                     }
                 }
+
+                //RegisterFloor(localType, lowestHeight, lowestFaceName, floorPolygon);
             }
+        }
+    }
+
+    private static void RegisterFloor(string localType, float lowestHeight, string lowestFaceName, Poly2Mesh.Polygon floorPolygon)
+    {
+        GameObject floorObj = Poly2Mesh.CreateGameObject(floorPolygon);
+        floorObj.name = lowestHeight + "_" + lowestFaceName;
+
+        // 하나의 솔리드에서 공간타입이 2개 이상 존재할 수는 없다
+        ApplyCellSpaceMaterial(localType, floorObj);
+
+        floorObj.transform.parent = CommonObjs.gmlRootFloor.transform;
+    }
+
+    private static void ApplyCellSpaceMaterial(string localType, GameObject genPolygon)
+    {
+        if (localType.Equals("TransitionSpace"))
+        {
+            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialTransitionSpace;
+        }
+        else if (localType.Equals("GeneralSpace"))
+        {
+            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialGeneralSpace;
+        }
+        else
+        {
+            // CellSpace (Default)
+            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialCellSpace;
         }
     }
 

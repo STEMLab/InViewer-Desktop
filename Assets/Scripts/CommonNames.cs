@@ -13,5 +13,6 @@ static class CommonNames
     public const string ROOT_CELLSPACEBOUNDARY = "CellSpaceBoundary";
     public const string ROOT_STATE = "State";
     public const string ROOT_TRANSITION = "Transition";
+    public const string ROOT_FLOOR = "Floor";
 }
 
