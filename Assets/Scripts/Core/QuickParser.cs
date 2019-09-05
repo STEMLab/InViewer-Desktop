@@ -252,7 +252,7 @@ public class QuickParser : MonoBehaviour
             }
         }
 
-        //GetFloors();
+        GetFloors();
     }
 
     public void GetFloors()
@@ -274,12 +274,13 @@ public class QuickParser : MonoBehaviour
         }
 
         // 통계 결과에 따라 층별 자식노드를 만들고 재분류를 실시
-        //var floorNames = Enumerable.Range(1, floorDict.Count).Select(x => x + "F");
-        
-        //foreach (string floorName in floorNames)
-        //{
-        //    GameObject thisFloor = new GameObject(floorName);
-        //}
+        var floorNames = Enumerable.Range(1, floorDict.Count).Select(x => x + "F");
+
+        foreach (string floorName in floorNames)
+        {
+            Debug.Log(floorName);
+            GameObject thisFloor = new GameObject(floorName);
+        }
 
         Debug.Log(floorDict);
     }
@@ -444,7 +445,7 @@ public class QuickParser : MonoBehaviour
                     }
                 }
 
-                //RegisterFloor(localType, lowestHeight, lowestFaceName, floorPolygon);
+                RegisterFloor(localType, lowestHeight, lowestFaceName, floorPolygon);
             }
         }
     }
