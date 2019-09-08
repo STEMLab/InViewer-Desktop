@@ -258,12 +258,13 @@ public class QuickParser : MonoBehaviour
     public void GetFloors()
     {
         var rootFloor = CommonObjs.gmlRootFloor.transform;
-        Dictionary<string, int> floorDict = new Dictionary<string, int>();
+        Dictionary<float, int> floorDict = new Dictionary<float, int>();
 
         // floor 루트 객체에서 모든 객체들에 대한 층높이 통계를 구한다.
+        // 출현하는 층높이의 횟수를 저장하는 이유는 추후 데이터 분석을 위함. 놓치는 부분이 있다던지..
         for (int i=0; i< rootFloor.childCount; i++)
         {
-            string thisHeight = rootFloor.GetChild(i).name.Split('_')[0];
+            float thisHeight = Convert.ToSingle(rootFloor.GetChild(i).name.Split('_')[0]);
             if (floorDict.ContainsKey(thisHeight))
             {
                 floorDict[thisHeight] += 1;
@@ -273,8 +274,19 @@ public class QuickParser : MonoBehaviour
             }
         }
 
-        // 통계 결과에 따라 층별 자식노드를 만들고 재분류를 실시
+        //Func<string, GameObject> CreateFloorNameObjs = floorName => new GameObject(floorName);
+
+        // Stage-1. 통계 결과에 따라 층별 노드를 생성
         var floorNames = Enumerable.Range(1, floorDict.Count).Select(x => x + "F");
+        //floorNames.Select(floorName => CreateFloorNameObjs(floorName));
+        var keys = floorDict.Keys.ToList();
+        keys.Sort();
+
+        // Floor 높이를 모두 받아서 정렬 후 Key Value 순으로 저장.
+        // -20 1F
+        // 0 2F
+        // 20 3F
+        keys.FindIndex(x => Math.Abs(x - 12.50f) < 0.001f);
 
         foreach (string floorName in floorNames)
         {
@@ -282,7 +294,16 @@ public class QuickParser : MonoBehaviour
             GameObject thisFloor = new GameObject(floorName);
         }
 
-        Debug.Log(floorDict);
+        // Stage-2. 각 바닥 객체들의 부모위치를 변경한다
+        for (int i = 0; i < rootFloor.childCount; i++)
+        {
+            var oneFloor = rootFloor.GetChild(i);
+            string thisHeight = oneFloor.name.Split('_')[0];
+            //floorDict.key
+            oneFloor.transform.parent = GameObject.Find(thisHeight + "F").transform;
+        }
+
+        //Debug.Log(floorDict);
     }
 
     public void RegisterFloorName(string floorName)
