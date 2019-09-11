@@ -37,6 +37,11 @@ public static class CommonObjs
     public static Material materialState;
     public static Material materialTextureSurface;
 
+    public static Material materialFloorCellSpace;
+    public static Material materialFloorTransitionSpace;
+    public static Material materialFloorGeneralSpace;
+
+
     private static Material materialLine;
 
     public static Shader shaderCullOFF;
@@ -72,6 +77,10 @@ public static class CommonObjs
         materialCellSpaceBoundary = Resources.Load("Materials/CellSpaceBoundary", typeof(Material)) as Material;
         materialState = Resources.Load("Materials/State", typeof(Material)) as Material;
         materialTextureSurface = new Material(Shader.Find("Unlit/Texture"));
+
+        materialFloorCellSpace = Resources.Load("Materials/FloorCellSpace", typeof(Material)) as Material;
+        materialFloorTransitionSpace = Resources.Load("Materials/FloorTransitionSpace", typeof(Material)) as Material;
+        materialFloorGeneralSpace = Resources.Load("Materials/FloorGeneralSpace", typeof(Material)) as Material;
 
         materialCellSpace.shader = shaderCullOFF;
         materialGeneralSpace.shader = shaderCullOFF;

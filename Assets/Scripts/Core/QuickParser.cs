@@ -9,6 +9,18 @@ using UnityEngine.Networking;
 
 public class QuickParser : MonoBehaviour
 {
+    // In-Working..
+    // 
+    public bool ActivateFloorPlanTestFunc = false;
+    private int totalFloors = 3;
+    private Dictionary<int, int> floorMap;
+    private List<List<Vector3>>[] floorOutLines;
+    public int wannaPickHeight = -20;
+    private int outLineFloor = -1;
+    private GameObject[] floorRootObjs;
+    //
+    // In-Working..
+
     //Vector3 firstPos;
     double firstPosX;
     double firstPosY;
@@ -17,6 +29,9 @@ public class QuickParser : MonoBehaviour
     public static Bounds sceneBound;
 
     static private List<List<Vector3>> outLines;
+
+    private List<List<string>> LevelsFloorIDs;
+    private string currentFileUrl;
 
     private XmlReader reader;
 
@@ -27,6 +42,62 @@ public class QuickParser : MonoBehaviour
     public string GetDirectoryName()
     {
         return Path.GetDirectoryName(_fileUrl);
+    }
+
+    private void Awake()
+    {
+        /////////////////////////
+        // In-Working.
+        // Test flight.
+        //wannaPickHeight = -20;
+
+        int[] heights = new int[]
+        {
+            -20,
+            0,
+            20,
+        };
+
+        int[] levels = new int[]
+        {
+            0,
+            1,
+            2
+        };
+
+        floorMap = new Dictionary<int, int>();
+
+        totalFloors = heights.Count();
+        floorRootObjs = new GameObject[totalFloors];
+
+        for (int i = 0; i < totalFloors; i++)
+        {
+            floorMap.Add(heights[i], levels[i]);
+
+            // 한개의 층에 2개 이상의 높이가 존재할 수도 있다고 가정
+            GameObject preCreatedLevel = GameObject.Find((levels[i] + 1) + "F");
+            if (preCreatedLevel == null)
+            {
+                preCreatedLevel = new GameObject((levels[i] + 1) + "F");
+            }
+            floorRootObjs[i] = preCreatedLevel;
+        }
+
+        floorOutLines = new List<List<Vector3>>[totalFloors];
+        for (int i = 0; i < totalFloors; i++)
+        {
+            floorOutLines[i] = new List<List<Vector3>>();
+        }
+
+        floorMap.TryGetValue(wannaPickHeight, out outLineFloor);
+
+        //if(floorMap.TryGetValue(wannaPickHeight, out outLineFloor) == false)
+        //{
+        //    outLineFloor = -1;
+        //}
+
+        // In-Working..
+        /////////////////////////        
     }
 
     private void Start()
@@ -176,9 +247,7 @@ public class QuickParser : MonoBehaviour
             firstPosZ = unityVectorZ;
         }
 
-        //srs3857 이런거 들어가면 좀 특수하게 처리 해야겠다.
-        //하아.... 일단 더블형태로 firstPos를 무식하게 저장해 놓고
-        //더블 형태로 빼기를 하고.... -_- 10 정도 곱하기를 하던가 해야겠다.
+        //epsg3857 의 경우는 추후 다시 검토할 것. 좌표계 원점을 다르게 적용해야 할수도 있다.
 
         //Vector3 relativeUnityVector3d = unityVector3d - firstPos;
         double deltaX = unityVectorX - firstPosX;
@@ -209,8 +278,15 @@ public class QuickParser : MonoBehaviour
         return reader.NodeType == XmlNodeType.EndElement && reader.LocalName.Equals(tag);
     }
 
+    public void LoadOnlyFloor(int level = 0)
+    {
+
+    }
+
     public void Load(string fileUrl)
     {
+        currentFileUrl = fileUrl;
+
         //firstPos = new Vector3();
         firstPosX = 0;
         firstPosY = 0;
@@ -274,11 +350,8 @@ public class QuickParser : MonoBehaviour
             }
         }
 
-        //Func<string, GameObject> CreateFloorNameObjs = floorName => new GameObject(floorName);
-
         // Stage-1. 통계 결과에 따라 층별 노드를 생성
         var floorNames = Enumerable.Range(1, floorDict.Count).Select(x => x + "F");
-        //floorNames.Select(floorName => CreateFloorNameObjs(floorName));
         var keys = floorDict.Keys.ToList();
         keys.Sort();
 
@@ -286,24 +359,50 @@ public class QuickParser : MonoBehaviour
         // -20 1F
         // 0 2F
         // 20 3F
-        keys.FindIndex(x => Math.Abs(x - 12.50f) < 0.001f);
 
-        foreach (string floorName in floorNames)
-        {
-            Debug.Log(floorName);
-            GameObject thisFloor = new GameObject(floorName);
-        }
+        //foreach (string floorName in floorNames)
+        //{
+        //    Debug.Log(floorName);
+        //    GameObject thisFloor = new GameObject(floorName);           
+        //}
 
         // Stage-2. 각 바닥 객체들의 부모위치를 변경한다
         for (int i = 0; i < rootFloor.childCount; i++)
         {
-            var oneFloor = rootFloor.GetChild(i);
-            string thisHeight = oneFloor.name.Split('_')[0];
-            //floorDict.key
-            oneFloor.transform.parent = GameObject.Find(thisHeight + "F").transform;
+            var oneFloor = GameObject.Instantiate(rootFloor.GetChild(i));
+            float thisHeight = Convert.ToSingle(oneFloor.name.Split('_')[0]);
+            int realFloor = keys.FindIndex(x => Math.Abs(x - thisHeight) < 0.001f) + 1;
+
+            oneFloor.transform.parent = GameObject.Find(realFloor + "F").transform;
+            //Instanitate로 생성된 클론딱지를 제거함
+            oneFloor.name = oneFloor.name.Split('_')[1].Replace("(Clone)", "");
         }
 
-        //Debug.Log(floorDict);
+        Destroy(rootFloor.gameObject);
+
+        // 여기까지 왔으면 각 층별로 1F, 2F, 3F 순서로 기존 Root 의 ID가 저장 완료.
+        // 이 리스트를 가지고 외곽선을 포함한 정제된 순수 geometry를 걸러낸다.
+
+        // Stage-3. 리스트를 확보하고 객체를 제거한다..
+        LevelsFloorIDs = new List<List<string>>();
+
+        for (int i = 1; i <= floorNames.Count(); i++)
+        {
+            List<string> localFloor = new List<string>();
+            
+            foreach(Transform floorName in GameObject.Find(i.ToString() + "F").transform)
+            {
+                localFloor.Add(floorName.name);
+            }
+
+            LevelsFloorIDs.Add(localFloor);
+
+            // 향후 퍼포먼스 향상을 위해 앞서 객체의 복사도 생략할 수 있도록 함을 고려
+            // 현재는 층별 선별이 올바른지를 눈으로 확인할 수 있도록 코드를 남겨둠
+            // GameObject.Destroy(GameObject.Find(i.ToString() + "F"));
+        }
+
+        Debug.Log(LevelsFloorIDs.Count());
     }
 
     public void RegisterFloorName(string floorName)
@@ -368,6 +467,22 @@ public class QuickParser : MonoBehaviour
         transition.transform.parent = CommonObjs.gmlRootTransition.transform;
     }
 
+    public void TakeFloorPlan()
+    {
+        StartCoroutine(ScreenShotWithoutUI());
+    }
+
+    IEnumerator ScreenShotWithoutUI()
+    {
+        yield return null;
+        GameObject.Find("Canvas").GetComponent<Canvas>().enabled = false;
+
+        yield return new WaitForEndOfFrame();
+        UnityEngine.ScreenCapture.CaptureScreenshot(string.Format(@"D:\FloorPlan_{0}_{1}.jpg", Path.GetFileName(currentFileUrl), wannaPickHeight));
+
+        GameObject.Find("Canvas").GetComponent<Canvas>().enabled = true;
+    }
+
     private void OnState(XmlReader reader)
     {
         string localName = string.Empty;
@@ -388,6 +503,27 @@ public class QuickParser : MonoBehaviour
                 Vector3 unityVector3d = GetPos3D(reader);
 
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+                //
+                // FloorPlanWork
+                var theText = new GameObject();
+                var textMesh = theText.AddComponent<TextMesh>();
+                var meshRenderer = theText.AddComponent<MeshRenderer>();
+                theText.name = "id-" + localName;
+                textMesh.text = localName;
+                textMesh.fontSize = 50;
+                textMesh.anchor = TextAnchor.MiddleCenter;
+                textMesh.alignment = TextAlignment.Center;
+                theText.transform.position = unityVector3d;
+                theText.transform.Rotate(90, 0, 0);
+                int parentIndex = 0;
+                if (floorMap.TryGetValue(Convert.ToInt32(unityVector3d.y), out parentIndex) == true)
+                {
+                    theText.transform.parent = GameObject.Find(string.Format("{0}F", (parentIndex + 1))).transform;
+                }
+                // FloorPlanWork
+                //
+
                 sphere.transform.position = unityVector3d;
                 sphere.name = localName;
 
@@ -461,11 +597,21 @@ public class QuickParser : MonoBehaviour
                             lowestHeight = thisMinY;
                             floorPolygon = polygon;
                             lowestFaceName = localName;
+
+                            //if(floorIndex == -99)
+                            //{
+                            //    Debug.Log("Cannot filter something..");
+                            //}
                         }
                         ApplyCellSpaceMaterial(localType, genPolygon);
                     }
                 }
+                int floorIndex = -99;
+                int convertedHeight = Convert.ToInt32(lowestHeight);
 
+                floorMap.TryGetValue(convertedHeight, out floorIndex);
+
+                floorOutLines[floorIndex].Add(floorPolygon.outside);
                 RegisterFloor(localType, lowestHeight, lowestFaceName, floorPolygon);
             }
         }
@@ -473,13 +619,31 @@ public class QuickParser : MonoBehaviour
 
     private static void RegisterFloor(string localType, float lowestHeight, string lowestFaceName, Poly2Mesh.Polygon floorPolygon)
     {
-        GameObject floorObj = Poly2Mesh.CreateGameObject(floorPolygon);
+        GameObject floorObj = Poly2Mesh.CreateGameObject(floorPolygon);        
         floorObj.name = lowestHeight + "_" + lowestFaceName;
 
         // 하나의 솔리드에서 공간타입이 2개 이상 존재할 수는 없다
-        ApplyCellSpaceMaterial(localType, floorObj);
+        ApplyFloorMaterial(localType, floorObj);
+        //ApplyCellSpaceMaterial(localType, floorObj);
 
         floorObj.transform.parent = CommonObjs.gmlRootFloor.transform;
+    }
+
+    private static void ApplyFloorMaterial(string localType, GameObject genPolygon)
+    {
+        if (localType.Equals("TransitionSpace"))
+        {
+            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialFloorTransitionSpace;
+        }
+        else if (localType.Equals("GeneralSpace"))
+        {
+            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialFloorGeneralSpace;
+        }
+        else
+        {
+            // CellSpace (Default)
+            genPolygon.GetComponent<Renderer>().material = CommonObjs.materialFloorCellSpace;
+        }
     }
 
     private static void ApplyCellSpaceMaterial(string localType, GameObject genPolygon)
@@ -614,14 +778,82 @@ public class QuickParser : MonoBehaviour
             Debug.Log("ERROR File: " + url);
         }
     }
-    
+
+    //public void OnRenderObject()
+    //{
+    //    CreateLineMaterial();
+
+    //    // Apply the line material
+    //    lineMaterial.SetPass(0);
+
+    //    if (outLines == null || outLines.Count() == 0)
+    //        return;
+
+    //    GL.PushMatrix();
+    //    // Set transformation matrix for drawing to
+    //    // match our transform
+    //    GL.MultMatrix(transform.localToWorldMatrix);
+
+    //    // Draw lines
+    //    for (int i = 0; i < outLines.Count(); ++i)
+    //    {
+    //        GL.Begin(GL.LINES);
+    //        for (int j = 0; j < outLines[i].Count() - 1; j++)
+    //        {
+    //            GL.Vertex3(outLines[i][j].x, outLines[i][j].y, outLines[i][j].z);
+    //            GL.Vertex3(outLines[i][j + 1].x, outLines[i][j + 1].y, outLines[i][j + 1].z);
+    //        }
+    //        GL.End();
+    //    }
+    //    GL.PopMatrix();
+    //}
+
     public void OnRenderObject()
     {
+        if (outLines == null)
+        {
+            return;
+        }
+
         CreateLineMaterial();
+
+        List<List<Vector3>> outLineArray;
+
+        if (ActivateFloorPlanTestFunc == true)
+        {
+            floorMap.TryGetValue(wannaPickHeight, out outLineFloor);
+
+            outLineArray = floorOutLines[outLineFloor];
+            if (CommonObjs.gmlRoot != null)
+            {
+                CommonObjs.gmlRoot.SetActive(false);
+                for(int i=0;i <floorRootObjs.Count(); i++)
+                {
+                    if(outLineFloor != i)
+                    {
+                        floorRootObjs[i].SetActive(false);
+                    } else
+                    {
+                        floorRootObjs[i].SetActive(true);
+                    }
+                }
+            }
+        }
+        else
+        {
+            outLineArray = outLines;
+
+            CommonObjs.gmlRoot.SetActive(true);
+            for (int i = 0; i < floorRootObjs.Count(); i++)
+            {
+                floorRootObjs[i].SetActive(false);
+            }
+        }
+
         // Apply the line material
         lineMaterial.SetPass(0);
 
-        if (outLines == null || outLines.Count() == 0)
+        if (floorOutLines == null || outLineArray.Count() == 0)
             return;
 
         GL.PushMatrix();
@@ -630,13 +862,13 @@ public class QuickParser : MonoBehaviour
         GL.MultMatrix(transform.localToWorldMatrix);
 
         // Draw lines
-        for (int i = 0; i < outLines.Count(); ++i)
+        for (int i = 0; i < outLineArray.Count(); ++i)
         {
             GL.Begin(GL.LINES);
-            for (int j = 0; j < outLines[i].Count() - 1; j++)
+            for (int j = 0; j < outLineArray[i].Count() - 1; j++)
             {
-                GL.Vertex3(outLines[i][j].x, outLines[i][j].y, outLines[i][j].z);
-                GL.Vertex3(outLines[i][j + 1].x, outLines[i][j + 1].y, outLines[i][j + 1].z);
+                GL.Vertex3(outLineArray[i][j].x, outLineArray[i][j].y, outLineArray[i][j].z);
+                GL.Vertex3(outLineArray[i][j + 1].x, outLineArray[i][j + 1].y, outLineArray[i][j + 1].z);
             }
             GL.End();
         }
