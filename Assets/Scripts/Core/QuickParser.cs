@@ -15,16 +15,28 @@ public class QuickParser : MonoBehaviour
     private int totalFloors = 3;
     private Dictionary<int, int> floorMap;
     private List<List<Vector3>>[] floorOutLines;
+    private List<string>[] floorDualities;
+    //private List<OutLineCellSpace>[] floorOutLines;
     public int wannaPickHeight = -20;
     private int outLineFloor = -1;
     private GameObject[] floorRootObjs;
     //
     // In-Working..
 
-    //Vector3 firstPos;
+    //Vector3 firstPos instead of Vector3D, double precision testing
     double firstPosX;
     double firstPosY;
     double firstPosZ;
+
+    double minPosX;
+    double minPosY;
+    double minPosZ;
+
+    double maxPosX;
+    double maxPosY;
+    double maxPosZ;
+
+    //private Vector3 firstPos;
 
     public static Bounds sceneBound;
 
@@ -53,9 +65,14 @@ public class QuickParser : MonoBehaviour
 
         int[] heights = new int[]
         {
+            // 201
+            //-20,
+            //0,
+            //20,
+            // 313
             -20,
-            0,
-            20,
+            1,
+            22
         };
 
         int[] levels = new int[]
@@ -83,10 +100,16 @@ public class QuickParser : MonoBehaviour
             floorRootObjs[i] = preCreatedLevel;
         }
 
+        // 추후 데이터 묶음 필요. 현재 확정된 정책이 없으므로 풀어놓음..
+        floorDualities = new List<string>[totalFloors];
         floorOutLines = new List<List<Vector3>>[totalFloors];
+
+        //floorOutLines = new List<OutLineCellSpace>[totalFloors];
         for (int i = 0; i < totalFloors; i++)
         {
+            floorDualities[i] = new List<string>();
             floorOutLines[i] = new List<List<Vector3>>();
+            //floorOutLines[i] = new List<OutLineCellSpace>();
         }
 
         floorMap.TryGetValue(wannaPickHeight, out outLineFloor);
@@ -245,7 +268,23 @@ public class QuickParser : MonoBehaviour
             firstPosX = unityVectorX;
             firstPosY = unityVectorY;
             firstPosZ = unityVectorZ;
+
+            minPosX = unityVectorX;
+            minPosY = unityVectorY;
+            minPosZ = unityVectorZ;
+
+            maxPosX = unityVectorX;
+            maxPosY = unityVectorY;
+            maxPosZ = unityVectorZ;
         }
+
+        minPosX = minPosX > unityVectorX ? unityVectorX : minPosX;
+        minPosY = minPosY > unityVectorY ? unityVectorY : minPosY;
+        minPosZ = minPosZ > unityVectorZ ? unityVectorZ : minPosZ;
+
+        maxPosX = maxPosX < unityVectorX ? unityVectorX : maxPosX;
+        maxPosY = maxPosY < unityVectorY ? unityVectorY : maxPosY;
+        maxPosZ = maxPosZ < unityVectorZ ? unityVectorZ : maxPosZ;
 
         //epsg3857 의 경우는 추후 다시 검토할 것. 좌표계 원점을 다르게 적용해야 할수도 있다.
 
@@ -266,6 +305,11 @@ public class QuickParser : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(sceneBound.center, sceneBound.size);
+    }
+
+    public bool isEmptyElement(XmlReader reader, string tag)
+    {
+        return reader.IsEmptyElement && reader.LocalName.Equals(tag);
     }
 
     public bool isStartElement(XmlReader reader, string tag)
@@ -329,6 +373,12 @@ public class QuickParser : MonoBehaviour
         }
 
         GetFloors();
+
+        Debug.Log(string.Format("firstPos(X, Y, Z) = ({0}, {1}, {2})", firstPosX, firstPosY, firstPosZ));
+        Debug.Log(string.Format("min(X, Y, Z) = ({0}, {1}, {2})", minPosX, minPosY, minPosZ));
+        Debug.Log(string.Format("max(X, Y, Z) = ({0}, {1}, {2})", maxPosX, maxPosY, maxPosZ));
+        Debug.Log(string.Format("Size(X, Y, Z) = ({0}, {1}, {2})", maxPosX - minPosX, maxPosY - minPosY, maxPosZ - minPosZ));
+        Debug.Log(string.Format("a_ullr {0} {1} {2} {3}", minPosX, maxPosZ, maxPosX, minPosZ));
     }
 
     public void GetFloors()
@@ -372,8 +422,15 @@ public class QuickParser : MonoBehaviour
             var oneFloor = GameObject.Instantiate(rootFloor.GetChild(i));
             float thisHeight = Convert.ToSingle(oneFloor.name.Split('_')[0]);
             int realFloor = keys.FindIndex(x => Math.Abs(x - thisHeight) < 0.001f) + 1;
+            try
+            {
+                // SPRINKLER 와 같은 객체는 천장에 붙어있고 높이가 층과 일치하지 않음.
+                oneFloor.transform.parent = GameObject.Find(realFloor + "F").transform;
+            }
+            catch
+            {
 
-            oneFloor.transform.parent = GameObject.Find(realFloor + "F").transform;
+            }
             //Instanitate로 생성된 클론딱지를 제거함
             oneFloor.name = oneFloor.name.Split('_')[1].Replace("(Clone)", "");
         }
@@ -389,11 +446,17 @@ public class QuickParser : MonoBehaviour
         for (int i = 1; i <= floorNames.Count(); i++)
         {
             List<string> localFloor = new List<string>();
-            
-            foreach(Transform floorName in GameObject.Find(i.ToString() + "F").transform)
+
+            // Thick 모델에서는 높이 초과 가능성 존재
+            try
             {
-                localFloor.Add(floorName.name);
+                foreach(Transform floorName in GameObject.Find(i.ToString() + "F").transform)
+                {
+                    localFloor.Add(floorName.name);
+                }
             }
+            catch { }
+
 
             LevelsFloorIDs.Add(localFloor);
 
@@ -470,7 +533,61 @@ public class QuickParser : MonoBehaviour
     public void TakeFloorPlan()
     {
         StartCoroutine(ScreenShotWithoutUI());
+
+        for (int i = 0; i < floorOutLines.Length; i++)
+        {
+            using (StreamWriter sw = new StreamWriter(string.Format(@"D:\Floor_{0}.txt", i)))
+            {
+                string header = string.Format(@"{
+  'type': 'FeatureCollection',
+  'crs': {{
+    'type': 'name',
+    'properties': {{
+      'name': 'EPSG:3857'
+    }}
+  }},
+  'features': [
+                    ");
+
+
+                sw.WriteLine(header);
+                for (int j = 0; j < floorOutLines[i].Count(); j++)
+                {
+                    {
+                        string top = string.Format(@"{{
+    'type': 'Feature',
+    'properties': {{ 
+      'id': '{0}'
+    }}, 
+    'geometry': {{
+                    'type': 'Polygon',
+      'coordinates': [[", floorDualities[i][j]);
+
+                        sw.WriteLine(top);
+
+                        for (int k = 0; k < floorOutLines[i][j].Count(); k++)
+                        {
+                            {
+                                sw.Write("[{0}, {1}]", floorOutLines[i][j][k].x + firstPosX, floorOutLines[i][j][k].z + firstPosZ);
+                                if (k + 1 < floorOutLines[i][j].Count())
+                                {
+                                    {
+                                        sw.WriteLine(",");
+                                    }
+                                }
+                            }
+                        }
+                        //sw.WriteLine("End of Polygon");
+                        string bottom = @"]]}},";
+                        sw.WriteLine(bottom);
+                    }
+                }
+                string footer = "]};";
+                sw.WriteLine(footer);
+            }
+        }
     }
+
 
     IEnumerator ScreenShotWithoutUI()
     {
@@ -478,7 +595,16 @@ public class QuickParser : MonoBehaviour
         GameObject.Find("Canvas").GetComponent<Canvas>().enabled = false;
 
         yield return new WaitForEndOfFrame();
-        UnityEngine.ScreenCapture.CaptureScreenshot(string.Format(@"D:\FloorPlan_{0}_{1}.jpg", Path.GetFileName(currentFileUrl), wannaPickHeight));
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        UnityEngine.ScreenCapture.CaptureScreenshot(string.Format(@"D:\FloorPlan_{0}_{1}.jpg", Path.GetFileName(currentFileUrl), wannaPickHeight), 5);
 
         GameObject.Find("Canvas").GetComponent<Canvas>().enabled = true;
     }
@@ -508,7 +634,8 @@ public class QuickParser : MonoBehaviour
                 // FloorPlanWork
                 var theText = new GameObject();
                 var textMesh = theText.AddComponent<TextMesh>();
-                var meshRenderer = theText.AddComponent<MeshRenderer>();
+                //var meshRenderer = theText.AddComponent<MeshRenderer>();
+                var meshRenderer = theText.GetComponent<MeshRenderer>();
                 theText.name = "id-" + localName;
                 textMesh.text = localName;
                 textMesh.fontSize = 50;
@@ -519,7 +646,14 @@ public class QuickParser : MonoBehaviour
                 int parentIndex = 0;
                 if (floorMap.TryGetValue(Convert.ToInt32(unityVector3d.y), out parentIndex) == true)
                 {
-                    theText.transform.parent = GameObject.Find(string.Format("{0}F", (parentIndex + 1))).transform;
+                    try
+                    {
+                        // 층 정보가 다를 수 있음.
+                        theText.transform.parent = GameObject.Find(string.Format("{0}F", (parentIndex + 1))).transform;
+                    }
+                    catch
+                    {
+                    }
                 }
                 // FloorPlanWork
                 //
@@ -539,8 +673,21 @@ public class QuickParser : MonoBehaviour
 
         string localName = string.Empty;
         string localType = string.Empty;
+
+        // 하나의 셀 스페이스는 하나의 듀얼리티를 가짐
+        string duality = "";
+
+        int convertedHeight = 0;
+        int floorIndex = -99;
+
         while (isEndElement(reader, "cellSpaceMember") == false)
         {
+            if (reader.LocalName.Equals("duality"))
+            {
+                duality = reader.GetAttribute("xlink:href").Remove(0, 1);
+                floorDualities[floorIndex].Add(duality);
+            }
+
             reader.Read();
 
             if (string.IsNullOrWhiteSpace(localName))
@@ -580,6 +727,7 @@ public class QuickParser : MonoBehaviour
                 while (isEndElement(reader, "Solid") == false)
                 {
                     reader.Read();
+
                     if (isStartElement(reader, "Polygon") || isStartElement(reader, "PolygonPatch"))
                     {
                         Poly2Mesh.Polygon polygon = OnPolygon(reader);
@@ -606,12 +754,18 @@ public class QuickParser : MonoBehaviour
                         ApplyCellSpaceMaterial(localType, genPolygon);
                     }
                 }
-                int floorIndex = -99;
-                int convertedHeight = Convert.ToInt32(lowestHeight);
+
+                convertedHeight = Convert.ToInt32(lowestHeight);
 
                 floorMap.TryGetValue(convertedHeight, out floorIndex);
 
+                //OutLineCellSpace tmpOutLineClass = new OutLineCellSpace();
+                //tmpOutLineClass.outline = floorPolygon.outside;
+                //tmpOutLineClass.duality = duality;
+
+                //floorOutLines[floorIndex].Add(tmpOutLineClass);
                 floorOutLines[floorIndex].Add(floorPolygon.outside);
+
                 RegisterFloor(localType, lowestHeight, lowestFaceName, floorPolygon);
             }
         }
@@ -817,13 +971,13 @@ public class QuickParser : MonoBehaviour
 
         CreateLineMaterial();
 
-        List<List<Vector3>> outLineArray;
+        List<List<Vector3>> outLineArray = new List<List<Vector3>>();
 
         if (ActivateFloorPlanTestFunc == true)
         {
             floorMap.TryGetValue(wannaPickHeight, out outLineFloor);
-
             outLineArray = floorOutLines[outLineFloor];
+
             if (CommonObjs.gmlRoot != null)
             {
                 CommonObjs.gmlRoot.SetActive(false);
@@ -895,3 +1049,28 @@ public class QuickParser : MonoBehaviour
         }
     }
 }
+
+public class dVector3
+{
+    public double x;
+    public double y;
+    public double z;
+
+    public dVector3()
+    {
+        x = double.MinValue;
+        y = double.MinValue;
+        z = double.MinValue;
+    }
+}
+
+//public class OutLineCellSpace
+//{
+//    public string duality;
+//    public List<Vector3> outline;
+
+//    public OutLineCellSpace()
+//    {
+//        outline = new List<Vector3>();
+//    }
+//}
