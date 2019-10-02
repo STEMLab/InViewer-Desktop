@@ -538,7 +538,7 @@ public class QuickParser : MonoBehaviour
         {
             using (StreamWriter sw = new StreamWriter(string.Format(@"D:\Floor_{0}.txt", i)))
             {
-                string header = string.Format(@"{
+                string header = string.Format(@"{{
   'type': 'FeatureCollection',
   'crs': {{
     'type': 'name',
@@ -556,8 +556,8 @@ public class QuickParser : MonoBehaviour
                     {
                         string top = string.Format(@"{{
     'type': 'Feature',
+     'id': '{0}',
     'properties': {{ 
-      'id': '{0}'
     }}, 
     'geometry': {{
                     'type': 'Polygon',
@@ -582,7 +582,7 @@ public class QuickParser : MonoBehaviour
                         sw.WriteLine(bottom);
                     }
                 }
-                string footer = "]};";
+                string footer = "]}};";
                 sw.WriteLine(footer);
             }
         }
