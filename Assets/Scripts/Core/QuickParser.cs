@@ -23,20 +23,15 @@ public class QuickParser : MonoBehaviour
     //
     // In-Working..
 
-    //Vector3 firstPos instead of Vector3D, double precision testing
-    double firstPosX;
-    double firstPosY;
-    double firstPosZ;
+    private float coordMinX = float.MaxValue;
+    private float coordMinZ = float.MaxValue;
+    private float coordMaxX = float.MinValue;
+    private float coordMaxZ = float.MinValue;
+    private float coordCenterX = 0;
+    private float coordCenterZ = 0;
+    private float longerAxisLength = 0;
 
-    double minPosX;
-    double minPosY;
-    double minPosZ;
-
-    double maxPosX;
-    double maxPosY;
-    double maxPosZ;
-
-    //private Vector3 firstPos;
+    bool isPassPhase1 = false;
 
     public static Bounds sceneBound;
 
@@ -253,50 +248,43 @@ public class QuickParser : MonoBehaviour
 
     private Vector3 GetPos3DCore(string[] gmlVector3d)
     {
-        //Vector3 unityVector3d = new Vector3();
-        double unityVectorX;
-        double unityVectorY;
-        double unityVectorZ;
+        float unityVectorX;
+        float unityVectorY;
+        float unityVectorZ;
 
         // Unity3D Vector Style.
-        double.TryParse(gmlVector3d[0], out unityVectorX);
-        double.TryParse(gmlVector3d[1], out unityVectorZ);
-        double.TryParse(gmlVector3d[2], out unityVectorY);
+        float.TryParse(gmlVector3d[0], out unityVectorX);
+        float.TryParse(gmlVector3d[1], out unityVectorZ);
+        float.TryParse(gmlVector3d[2], out unityVectorY);
 
-        if (firstPosX == 0 && firstPosY == 0 && firstPosZ == 0)
+        if (isPassPhase1 == false)
         {
-            firstPosX = unityVectorX;
-            firstPosY = unityVectorY;
-            firstPosZ = unityVectorZ;
+            coordMinX = unityVectorX < coordMinX ? unityVectorX : coordMinX;
+            coordMinZ = unityVectorZ < coordMinZ ? unityVectorZ : coordMinZ;
 
-            minPosX = unityVectorX;
-            minPosY = unityVectorY;
-            minPosZ = unityVectorZ;
+            coordMaxX = unityVectorX > coordMaxX ? unityVectorX : coordMaxX;
+            coordMaxZ = unityVectorZ > coordMaxZ ? unityVectorZ : coordMaxZ;
 
-            maxPosX = unityVectorX;
-            maxPosY = unityVectorY;
-            maxPosZ = unityVectorZ;
+            coordCenterX = (coordMaxX - coordMinX) / 2.0f;
+            coordCenterZ = (coordMaxZ - coordMinZ) / 2.0f;
+
+            float lengthX = coordMaxX - coordMinX;
+            float lengthZ = coordMaxZ - coordMinZ;
+
+            longerAxisLength = lengthX > lengthZ ? Math.Abs(lengthX) : Math.Abs(lengthZ);
+            // Nothing to do more.
+            return Vector3.zero;
         }
 
-        minPosX = minPosX > unityVectorX ? unityVectorX : minPosX;
-        minPosY = minPosY > unityVectorY ? unityVectorY : minPosY;
-        minPosZ = minPosZ > unityVectorZ ? unityVectorZ : minPosZ;
+        // Pass Phase2
+        float scaledX = (unityVectorX - coordMinX) / (longerAxisLength / 1000f);
+        float scaledY = unityVectorY / (longerAxisLength / 1000f);
+        float scaledZ = (unityVectorZ - coordMinZ) / (longerAxisLength / 1000f);
 
-        maxPosX = maxPosX < unityVectorX ? unityVectorX : maxPosX;
-        maxPosY = maxPosY < unityVectorY ? unityVectorY : maxPosY;
-        maxPosZ = maxPosZ < unityVectorZ ? unityVectorZ : maxPosZ;
+        Vector3 scaledVector = new Vector3(Convert.ToSingle(scaledX),
+            Convert.ToSingle(scaledY),
+            Convert.ToSingle(scaledZ));
 
-        //epsg3857 의 경우는 추후 다시 검토할 것. 좌표계 원점을 다르게 적용해야 할수도 있다.
-
-        //Vector3 relativeUnityVector3d = unityVector3d - firstPos;
-        double deltaX = unityVectorX - firstPosX;
-        double deltaY = unityVectorY - firstPosY;
-        double deltaZ = unityVectorZ - firstPosZ;
-
-        Vector3 scaledVector = new Vector3(Convert.ToSingle(deltaX),
-            Convert.ToSingle(deltaY),
-            Convert.ToSingle(deltaZ));
-        
         sceneBound.Encapsulate(scaledVector);
         return scaledVector;
     }
@@ -331,10 +319,6 @@ public class QuickParser : MonoBehaviour
     {
         currentFileUrl = fileUrl;
 
-        //firstPos = new Vector3();
-        firstPosX = 0;
-        firstPosY = 0;
-        firstPosZ = 0;
 
         sceneBound = new Bounds();
 
@@ -345,7 +329,37 @@ public class QuickParser : MonoBehaviour
         PosBasedEntity Face = new PosBasedEntity("", "", DATA_TYPE.Undefined);
         
         Stack<string> tagStack = new Stack<string>();
-        
+
+
+        // Phases 1 - Get Min and Max coordinates of plane world
+        isPassPhase1 = false;
+        coordMinX = float.MaxValue;
+        coordMinZ = float.MaxValue;
+        coordMaxX = float.MinValue;
+        coordMaxZ = float.MinValue;
+
+        using (XmlReader reader = XmlReader.Create(_fileUrl))
+        {
+            while (reader.Read())
+            {
+                if (isStartElement(reader, "pos"))
+                {
+                    reader.Read();
+                    string[] gmlVector3d = reader.Value.Trim().Split(' ');
+
+                    GetPos3D(reader);
+                }
+                else if (isStartElement(reader, "posList"))
+                {
+                    reader.Read();
+                    GetPosList3D(reader);
+                }
+            }
+        }
+
+        isPassPhase1 = true;
+
+        // Phases 2 - Normalization Position All Geometries In (0, ?, 0) - (1000, ?, 1000)
         using (XmlReader reader = XmlReader.Create(_fileUrl))
         {
             while (reader.Read())
@@ -373,12 +387,6 @@ public class QuickParser : MonoBehaviour
         }
 
         GetFloors();
-
-        Debug.Log(string.Format("firstPos(X, Y, Z) = ({0}, {1}, {2})", firstPosX, firstPosY, firstPosZ));
-        Debug.Log(string.Format("min(X, Y, Z) = ({0}, {1}, {2})", minPosX, minPosY, minPosZ));
-        Debug.Log(string.Format("max(X, Y, Z) = ({0}, {1}, {2})", maxPosX, maxPosY, maxPosZ));
-        Debug.Log(string.Format("Size(X, Y, Z) = ({0}, {1}, {2})", maxPosX - minPosX, maxPosY - minPosY, maxPosZ - minPosZ));
-        Debug.Log(string.Format("a_ullr {0} {1} {2} {3}", minPosX, maxPosZ, maxPosX, minPosZ));
     }
 
     public void GetFloors()
@@ -568,7 +576,8 @@ public class QuickParser : MonoBehaviour
                         for (int k = 0; k < floorOutLines[i][j].Count(); k++)
                         {
                             {
-                                sw.Write("[{0}, {1}]", floorOutLines[i][j][k].x + firstPosX, floorOutLines[i][j][k].z + firstPosZ);
+                                //sw.Write("[{0}, {1}]", floorOutLines[i][j][k].x + coordMinX, floorOutLines[i][j][k].z + coordMinZ);
+                                sw.Write("[{0}, {1}]", floorOutLines[i][j][k].x, floorOutLines[i][j][k].z);
                                 if (k + 1 < floorOutLines[i][j].Count())
                                 {
                                     {
@@ -831,10 +840,6 @@ public class QuickParser : MonoBehaviour
             {
                 reader.Read();
                 localName = reader.GetAttribute("gml:id");
-                if(localName == "ROOM80-TEXTURE-FLOOR")
-                {
-                    Debug.Log("Hit");
-                }
             }
 
             if (isStartElement(reader, "Polygon") || isStartElement(reader, "PolygonPatch"))
@@ -862,6 +867,13 @@ public class QuickParser : MonoBehaviour
                         localUVs.Add(GetPos2D(reader));
                     }
                 }
+            }
+
+            if (isStartElement(reader, "OrientableSurface"))
+            {
+                // Now, Viewer shows always both of sides.
+                // So nothing to do for viewing for other side. 
+                return;
             }
         }
 
