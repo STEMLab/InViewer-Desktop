@@ -13,13 +13,13 @@ public class QuickParser : MonoBehaviour
     //double firstPosX;
     //double firstPosY;
     //double firstPosZ;
-    private float coordMinX = float.MaxValue;
-    private float coordMinZ = float.MaxValue;
-    private float coordMaxX = float.MinValue;
-    private float coordMaxZ = float.MinValue;
-    private float coordCenterX = 0;
-    private float coordCenterZ = 0;
-    private float longerAxisLength = 0;
+    private double coordMinX = float.MaxValue;
+    private double coordMinZ = float.MaxValue;
+    private double coordMaxX = float.MinValue;
+    private double coordMaxZ = float.MinValue;
+    private double coordCenterX = 0;
+    private double coordCenterZ = 0;
+    private double longerAxisLength = 0;
 
     bool isPassPhase1 = false;
 
@@ -169,16 +169,21 @@ public class QuickParser : MonoBehaviour
     private Vector3 GetPos3DCore(string[] gmlVector3d)
     {
         //Vector3 unityVector3d = new Vector3();
-        float unityVectorX;
-        float unityVectorY;
-        float unityVectorZ;
+        double unityVectorX;
+        double unityVectorY;
+        double unityVectorZ;
 
         // Unity3D Vector Style.
-        float.TryParse(gmlVector3d[0], out unityVectorX);
-        float.TryParse(gmlVector3d[1], out unityVectorZ);
-        float.TryParse(gmlVector3d[2], out unityVectorY);
+        //double.TryParse(gmlVector3d[0], out unityVectorX);
+        //double.TryParse(gmlVector3d[1], out unityVectorZ);
+        //double.TryParse(gmlVector3d[2], out unityVectorY);
+        //double aa = Convert.ToDouble("14150098.000000");
 
-        if(isPassPhase1 == false)
+        unityVectorX = Convert.ToDouble(gmlVector3d[0]);
+        unityVectorZ = Convert.ToDouble(gmlVector3d[1]);
+        unityVectorY = Convert.ToDouble(gmlVector3d[2]);
+
+        if (isPassPhase1 == false)
         {
             coordMinX = unityVectorX < coordMinX ? unityVectorX : coordMinX;
             coordMinZ = unityVectorZ < coordMinZ ? unityVectorZ : coordMinZ;
@@ -189,8 +194,8 @@ public class QuickParser : MonoBehaviour
             coordCenterX = (coordMaxX - coordMinX) / 2.0f;
             coordCenterZ = (coordMaxZ - coordMinZ) / 2.0f;
 
-            float lengthX = coordMaxX - coordMinX;
-            float lengthZ = coordMaxZ - coordMinZ;
+            double lengthX = coordMaxX - coordMinX;
+            double lengthZ = coordMaxZ - coordMinZ;
 
             longerAxisLength = lengthX > lengthZ ? Math.Abs(lengthX) : Math.Abs(lengthZ);
 
@@ -199,9 +204,9 @@ public class QuickParser : MonoBehaviour
         }
 
         // Pass Phase2
-        float scaledX = (unityVectorX - coordMinX) / (longerAxisLength / 1000f);
-        float scaledY = unityVectorY / (longerAxisLength / 1000f);
-        float scaledZ = (unityVectorZ - coordMinZ) / (longerAxisLength / 1000f);
+        double scaledX = (unityVectorX - coordMinX) / (longerAxisLength / 1000f);
+        double scaledY = unityVectorY / (longerAxisLength / 1000f);
+        double scaledZ = (unityVectorZ - coordMinZ) / (longerAxisLength / 1000f);
 
         Vector3 scaledVector = new Vector3(Convert.ToSingle(scaledX),
             Convert.ToSingle(scaledY),
@@ -272,6 +277,12 @@ public class QuickParser : MonoBehaviour
 
         isPassPhase1 = true;
         // Phases 2 - Normalization Position All Geometries In (0, ?, 0) - (1000, ?, 1000)
+        if(coordMinX == coordMaxX)
+        {
+            Debug.Log("Assert) Cannot recognize coordinates");
+            return;
+        }
+
 
         using (XmlReader reader = XmlReader.Create(_fileUrl))
         {
