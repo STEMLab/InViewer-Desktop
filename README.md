@@ -29,9 +29,8 @@ https://unity3d.com/unity/qa/lts-releases?version=2018.4
 3. Run "InviewerDesktopGUI.exe"
 
 ## Usage
-- Mouse Left-Button Drag : Panning
-- Mouse Right-Button Drag : Fast Zoom in Out
-- Mouse Middle-Button Drag : Rotation
+- Mouse Left-Button Drag : Rotation
+- Mouse Right-Button Drag : Panning
 - Mouse Wheel Up&Down : Zoom in and out
 
 - (Left side on window) Tree controller double click : short-cut to select item.

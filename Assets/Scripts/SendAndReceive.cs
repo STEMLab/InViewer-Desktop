@@ -146,7 +146,8 @@ public class SendAndReceive : MonoBehaviour
                 if (guiParam.Equals("ORTHOGONAL"))
                 {
                     Camera.main.orthographic = true;
-                    Camera.main.nearClipPlane = -1000;
+                    Camera.main.farClipPlane = 10000;
+                    Camera.main.nearClipPlane = -10000;
                 }
                 else if(guiParam.Equals("PERSPECTIVE"))
                 {
@@ -319,8 +320,12 @@ public class SendAndReceive : MonoBehaviour
 
         if (zoomAction)
         {
-            Camera.main.transform.DOMove(resultPos, 1);
-            Camera.main.transform.DORotate(resultRot, 1);
+            //Camera.main.transform.DOMove(resultPos, 1);
+            //Camera.main.transform.DORotate(resultRot, 1);
+
+            GameObject.Find("Camera Orbit").transform.position = resultPos;
+            GameObject.Find("Camera Orbit").transform.localScale = new Vector3(50, 50, 50);
+
         }
     }
 
@@ -445,8 +450,8 @@ public class SendAndReceive : MonoBehaviour
     //    }
     //}
 
-    public void TestFunc()
+    public void TestFunc(string param)
     {
-        dataFromGUI = "GOTO|SG-S1";
+        dataFromGUI = "GOTO|" + param;
     }
 }

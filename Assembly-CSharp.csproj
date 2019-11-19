@@ -70,6 +70,9 @@
     <Compile Include="Assets\Scripts\Combining.cs" />
     <Compile Include="Assets\Scripts\CommonNames.cs" />
     <Compile Include="Assets\Scripts\CommonTree.cs" />
+    <Compile Include="Assets\Scripts\Controller\CameraController.cs" />
+    <Compile Include="Assets\Scripts\Controller\InputControl.cs" />
+    <Compile Include="Assets\Scripts\Controller\MakeCenter.cs" />
     <Compile Include="Assets\Scripts\Debug\CommonObjs.cs" />
     <Compile Include="Assets\Scripts\Debug\QuickParser.cs" />
     <Compile Include="Assets\Scripts\Debug\TextureCoord.cs" />
@@ -121,6 +124,7 @@
     <Compile Include="Assets\Scripts\SimpleRotate.cs" />
     <Compile Include="Assets\Scripts\StreamString.cs" />
     <Compile Include="Assets\Scripts\ViewDrag.cs" />
+    <Compile Include="Assets\Scripts\ViewRotate.cs" />
     <Compile Include="Assets\StandaloneFileBrowser\IStandaloneFileBrowser.cs" />
     <Compile Include="Assets\StandaloneFileBrowser\StandaloneFileBrowser.cs" />
     <Compile Include="Assets\StandaloneFileBrowser\StandaloneFileBrowserEditor.cs" />
