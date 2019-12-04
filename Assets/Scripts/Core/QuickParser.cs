@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -20,6 +21,14 @@ public class QuickParser : MonoBehaviour
     public int wannaPickHeight = -20;
     private int outLineFloor = -1;
     private GameObject[] floorRootObjs;
+    private Dictionary<string, Vector2> statePositions;
+    private Dictionary<string, string> pathToLevelAlias;
+
+    private List<string> pathCenterPointStates;
+
+    // [From, <PathTransition>] => Dijkstra
+    private Dictionary<string, PathTransition> dictTrans;
+
     //
     // In-Working..
 
@@ -32,6 +41,8 @@ public class QuickParser : MonoBehaviour
     private float longerAxisLength = 0;
 
     bool isPassPhase1 = false;
+
+    bool isPathPhase = false;
 
     public static Bounds sceneBound;
 
@@ -114,8 +125,12 @@ public class QuickParser : MonoBehaviour
         //    outLineFloor = -1;
         //}
 
+        dictTrans = new Dictionary<string, PathTransition>();
+
         // In-Working..
         /////////////////////////        
+        ///
+        pathToLevelAlias = new Dictionary<string, string>();
     }
 
     private void Start()
@@ -162,7 +177,7 @@ public class QuickParser : MonoBehaviour
 
                         localOutlines.Add(unityVector3d);
                     }
-                    else if(isStartElement(reader, "posList"))
+                    else if (isStartElement(reader, "posList"))
                     {
                         reader.Read();
                         localOutlines = GetPosList3D(reader);
@@ -190,7 +205,7 @@ public class QuickParser : MonoBehaviour
                         //var lastHole = localHoles.Last();
                         //lastHole = GetPosList3D(reader);
                         int lastHoleIdx = localHoles.Count;
-                        localHoles[lastHoleIdx-1] = GetPosList3D(reader);
+                        localHoles[lastHoleIdx - 1] = GetPosList3D(reader);
                     }
                 }
             }
@@ -319,15 +334,19 @@ public class QuickParser : MonoBehaviour
     {
         currentFileUrl = fileUrl;
 
-
         sceneBound = new Bounds();
 
         outLines = new List<List<Vector3>>();
 
+        pathToLevelAlias = new Dictionary<string, string>();
+        dictTrans = new Dictionary<string, PathTransition>();
+        pathCenterPointStates = new List<string>();
+        statePositions = new Dictionary<string, Vector2>();
+
         _fileUrl = fileUrl;
 
         PosBasedEntity Face = new PosBasedEntity("", "", DATA_TYPE.Undefined);
-        
+
         Stack<string> tagStack = new Stack<string>();
 
 
@@ -359,12 +378,28 @@ public class QuickParser : MonoBehaviour
 
         isPassPhase1 = true;
 
+        isPathPhase = false;
+
         // Phases 2 - Normalization Position All Geometries In (0, ?, 0) - (1000, ?, 1000)
         using (XmlReader reader = XmlReader.Create(_fileUrl))
         {
             while (reader.Read())
             {
-                if(isStartElement(reader, "cellSpaceBoundaryMember"))
+                if (isStartElement(reader, "SpaceLayer") == true
+                    && reader.GetAttribute("gml:id").Equals("path") == true)
+                {
+                    Debug.Log("path layer opened");
+                    isPathPhase = true;
+                }
+
+                if (isEndElement(reader, "SpaceLayer") == true
+                    && isPathPhase == true)
+                {
+                    Debug.Log("path layer closed");
+                    isPathPhase = false;
+                }
+
+                if (isStartElement(reader, "cellSpaceBoundaryMember"))
                 {
                     OnCellSpaceBoundaryMember(reader);
                 }
@@ -374,19 +409,122 @@ public class QuickParser : MonoBehaviour
                     OnCellSpace(reader);
                 }
 
-                if(isStartElement(reader, "stateMember"))
+                if (isStartElement(reader, "interLayerConnectionMember"))
                 {
-                    OnState(reader);
+                    OnInterLayerConnection(reader);
                 }
 
-                if (isStartElement(reader, "transitionMember"))
+                if (isPathPhase != true)
                 {
-                    OnTransition(reader);
+
+                }
+                else
+                {
+                    if (isStartElement(reader, "stateMember"))
+                    {
+                        //OnState(reader);
+                        OnStatePath(reader);
+                    }
+
+                    if (isStartElement(reader, "transitionMember"))
+                    {
+                        //OnTransition(reader);
+                        OnTransitionPath(reader);
+                    }
                 }
             }
         }
 
+        // path layer information cleaning
+        //pathToLevelAlias;
+
+        GetPathFinderData();
+
         GetFloors();
+    }
+
+    private void GetPathFinderData()
+    {
+        // Generate data for path finder.
+        Dictionary<string, string> compactStateToPath = new Dictionary<string, string>();
+        for (int i = 0; i < pathCenterPointStates.Count(); i++)
+        {
+            string pathStateName = string.Empty;
+            pathToLevelAlias.TryGetValue(pathCenterPointStates[i], out pathStateName);
+            compactStateToPath.Add(pathStateName, pathCenterPointStates[i]);
+        }
+
+        List<PathTransition> pathTrans = new List<PathTransition>();
+
+        foreach (var tran in dictTrans)
+        {
+            pathTrans.Add(tran.Value);
+        }
+
+        var sortedPath = pathTrans.OrderBy(x => x._from).ToList();
+
+        string lastFrom = sortedPath[0]._from;
+
+        List<string> connectedNodes = new List<string>();
+
+        List<string> resultAddLines = new List<string>();
+        string paramBody = string.Empty;
+        string paramConnected = string.Empty;
+
+        for (int i = 0; i < sortedPath.Count; i++)
+        {
+            string from = sortedPath[i]._from;
+            string to = sortedPath[i]._to;
+            string weight = sortedPath[i]._weight.ToString();
+
+            if (lastFrom.Equals(from) == false)
+            {
+                paramConnected = string.Join(", ", connectedNodes);
+                paramBody = string.Format("dijkstra.addNode(\"{0}\", {{{1}}})", lastFrom, paramConnected);
+                resultAddLines.Add(paramBody);
+
+                connectedNodes.Clear();
+                lastFrom = from;
+            }
+
+            connectedNodes.Add(string.Format("\"{0}\": {1}", to, weight));
+        }
+
+        // Write Last one
+        paramBody = string.Format("dijkstra.addNode(\"{0}\", {{{1}}})", lastFrom, paramConnected);
+        resultAddLines.Add(paramBody);
+
+        Debug.Log("Djikstra: " + resultAddLines.Count);
+
+        using (StreamWriter sw = new StreamWriter(string.Format(@"D:\djikstra.txt")))
+        {
+            for (int i = 0; i < resultAddLines.Count; i++)
+            {
+                sw.WriteLine(resultAddLines[i]);
+            }
+
+            //for (int i = 0; i < statePositions.Count; i++)
+
+
+            sw.WriteLine("export const statesPosition = {");
+            foreach (var state in statePositions)
+            {
+                sw.WriteLine(string.Format("\t\"{0}\": [{1}, {2}],", state.Key, state.Value.x, state.Value.y));
+            }
+            sw.WriteLine("}");
+
+            sw.WriteLine("export const stateToPath = {");
+            foreach (var state in compactStateToPath)
+            {
+                sw.WriteLine(string.Format("\t\"{0}\": \"{1}\",", state.Key, state.Value));
+            }
+            sw.WriteLine("}");
+
+        }
+
+        //state 위치를 저장하는 코드를 넣자. Core3D 기준 위치로. 자바 dictionary 형태로 넣자. 그 다음에 결과에 따라서 linestring을 그리게끔 frontend 에서 처리하면 끝!
+
+
     }
 
     public void GetFloors()
@@ -396,7 +534,7 @@ public class QuickParser : MonoBehaviour
 
         // floor 루트 객체에서 모든 객체들에 대한 층높이 통계를 구한다.
         // 출현하는 층높이의 횟수를 저장하는 이유는 추후 데이터 분석을 위함. 놓치는 부분이 있다던지..
-        for (int i=0; i< rootFloor.childCount; i++)
+        for (int i = 0; i < rootFloor.childCount; i++)
         {
             float thisHeight = Convert.ToSingle(rootFloor.GetChild(i).name.Split('_')[0]);
             if (floorDict.ContainsKey(thisHeight))
@@ -404,7 +542,7 @@ public class QuickParser : MonoBehaviour
                 floorDict[thisHeight] += 1;
             } else {
                 floorDict.Add(thisHeight, 1);
-                
+
             }
         }
 
@@ -458,7 +596,7 @@ public class QuickParser : MonoBehaviour
             // Thick 모델에서는 높이 초과 가능성 존재
             try
             {
-                foreach(Transform floorName in GameObject.Find(i.ToString() + "F").transform)
+                foreach (Transform floorName in GameObject.Find(i.ToString() + "F").transform)
                 {
                     localFloor.Add(floorName.name);
                 }
@@ -485,13 +623,175 @@ public class QuickParser : MonoBehaviour
     {
         Debug.Log("Debug: " + num);
     }
-    
+
     public float GetUnitSize()
     {
         float localMax = Math.Max(sceneBound.size.z, sceneBound.size.x);
         localMax = Math.Max(localMax, sceneBound.size.y);
 
         return localMax / 100f;
+    }
+       
+    // isCenterPoint?
+    private void OnStatePath(XmlReader reader)
+    {
+        bool isCenterPoint = false;
+        string stateName = string.Empty;
+        Vector2 tmpStatePosition = new Vector2();
+
+        while (isEndElement(reader, "stateMember") == false)
+        {
+            reader.Read();
+
+            if (isStartElement(reader, "description"))
+            {
+                reader.Read();
+                if (reader.Value.IndexOf("isCenterPoint") != -1)
+                {
+                    isCenterPoint = true;
+                }
+            }
+
+            if (isStartElement(reader, "pos"))
+            {
+                reader.Read();
+                var tmp3D = GetPos3D(reader);
+                tmpStatePosition = new Vector2(tmp3D.x, tmp3D.z);
+            }
+
+            if (isStartElement(reader, "name"))
+            {
+                reader.Read();
+                stateName = reader.Value;
+            }
+        }
+
+        if(isCenterPoint == true)
+        {
+            pathCenterPointStates.Add(stateName);
+        }
+
+        try
+        {
+            statePositions.Add(stateName, tmpStatePosition);
+        } catch
+        {
+            Debug.Log("Duplicated state detected");
+        }
+    }
+
+    private void OnInterLayerConnection(XmlReader reader)
+    {
+        string firstStateName = string.Empty;
+        string secondStateName = string.Empty;
+
+        string firstLayerName = string.Empty;
+        string secondLayerName = string.Empty;
+
+        // Each data generator has different layer composition..
+        // Beware of order.
+
+        while (isEndElement(reader, "interLayerConnectionMember") == false)
+        {
+            reader.Read();
+
+            if (isStartElement(reader, "interConnects"))
+            {
+                firstStateName = reader.GetAttribute("xlink:href");
+                reader.Read();
+                reader.Read();
+                secondStateName = reader.GetAttribute("xlink:href");
+            }
+
+            if (isStartElement(reader, "ConnectedLayers"))
+            {
+                firstLayerName = reader.GetAttribute("xlink:href");
+                reader.Read();
+                reader.Read();
+                secondLayerName = reader.GetAttribute("xlink:href");
+            }
+        }
+
+        // Key: path layer state
+        // Value: normal state
+        if (firstLayerName.Equals("#path"))
+        {
+            
+            pathToLevelAlias.Add(firstStateName.Substring(1), secondStateName.Substring(1));
+        }
+        else if(secondLayerName.Equals("#path"))
+        {
+            pathToLevelAlias.Add(secondStateName.Substring(1), firstStateName.Substring(1));
+        }
+    }
+
+    private void OnTransitionPath(XmlReader reader)
+    {
+        string localName = string.Empty;
+
+        string name = string.Empty;
+        string weight = string.Empty;
+        string peerA = string.Empty;
+        string peerB = string.Empty;
+
+        string startX = string.Empty;
+        string startY = string.Empty;
+        string endX = string.Empty;
+        string endY = string.Empty;
+
+        while (isEndElement(reader, "transitionMember") == false)
+        {
+            reader.Read();
+            if (string.IsNullOrWhiteSpace(localName))
+            {
+                reader.Read();
+                localName = reader.GetAttribute("gml:id");
+            }
+
+            if (isStartElement(reader, "name"))
+            {
+                reader.Read();
+                name = reader.Value;
+            }
+
+            if (isStartElement(reader, "weight"))
+            {
+                reader.Read();
+                weight = reader.Value;
+            }
+
+            if (isStartElement(reader, "connects"))
+            {
+                peerA = reader.GetAttribute("xlink:href");
+                reader.Read();
+                reader.Read();
+                peerB = reader.GetAttribute("xlink:href");
+            }
+
+            if (isStartElement(reader, "pos"))
+            {
+                reader.Read();
+
+                Vector3 unityVector3d = GetPos3D(reader);
+                if(string.IsNullOrEmpty(startX) == true)
+                {
+                    startX = unityVector3d.x.ToString();
+                    startY = unityVector3d.z.ToString();
+                }
+                else
+                {
+                    endX = unityVector3d.x.ToString();
+                    endY = unityVector3d.z.ToString();
+                }
+            }
+        }
+
+        try {
+            dictTrans.Add(name, new PathTransition(name, weight, peerA, peerB, startX, startY, endX, endY));
+        } catch(ArgumentException ae)
+        {
+            Debug.Log(ae.Message + ":" + name);
+        }
     }
 
     private void OnTransition(XmlReader reader)
@@ -1076,13 +1376,22 @@ public class dVector3
     }
 }
 
-//public class OutLineCellSpace
-//{
-//    public string duality;
-//    public List<Vector3> outline;
+public class PathTransition
+{
+    public readonly string _name;
+    public readonly float _weight;
+    public readonly string _from;
+    public readonly string _to;
+    public readonly Vector2 _pathFrom;
+    public readonly Vector2 _pathTo;
 
-//    public OutLineCellSpace()
-//    {
-//        outline = new List<Vector3>();
-//    }
-//}
+    public PathTransition(string name, string weight, string from, string to, string startX, string startY, string endX, string endY)
+    {
+        _name = name;
+        _weight = Convert.ToSingle(weight);
+        _from = from;
+        _to = to;
+        _pathFrom = new Vector2(Convert.ToSingle(startX), Convert.ToSingle(startY));
+        _pathTo = new Vector2(Convert.ToSingle(endX), Convert.ToSingle(endY));
+    }
+}
