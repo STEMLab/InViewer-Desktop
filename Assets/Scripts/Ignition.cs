@@ -71,7 +71,7 @@ public class Ignition : MonoBehaviour
 
         quickParser.Load(fileURL);
 
-        UpdateStatesSize(1);
+        UpdateStatesSize(0.3f);
 
         //Debug.Log(totalBounds.ToString());
 

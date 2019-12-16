@@ -6,8 +6,10 @@ using System.Linq;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.MeshOperations;
 
-public class QuickParserPB : MonoBehaviour
+public class QuickParser : MonoBehaviour
 {
     //Vector3 firstPos;
     //double firstPosX;
@@ -57,7 +59,89 @@ public class QuickParserPB : MonoBehaviour
         //Load(@"D:\GitHub\Working\Official\FJK-Haus_IndoorGML_withEXR-corrected_1_0_3.gml");
     }
 
-    private Poly2Mesh.Polygon OnPolygon(XmlReader reader)
+    private ProBuilderMesh OnPolygon_PB(XmlReader reader)
+    {
+        List<Vector3> localOutlines = new List<Vector3>();
+        List<List<Vector3>> localHoles = new List<List<Vector3>>();
+
+        while (isEndElement(reader, "Polygon") == false && isEndElement(reader, "PolygonPatch") == false)
+        {
+            reader.Read();
+
+            if (isStartElement(reader, "exterior"))
+            {
+                // pos 목록을 localExterior에 모두 등록. exterior는 1개를 초과하지 않음.
+                localOutlines = new List<Vector3>();
+                while (isEndElement(reader, "exterior") == false)
+                {
+                    reader.Read();
+
+                    if (isStartElement(reader, "pos"))
+                    {
+                        reader.Read();
+
+                        Vector3 unityVector3d = GetPos3D(reader);
+
+                        localOutlines.Add(unityVector3d);
+                    }
+                    else if(isStartElement(reader, "posList"))
+                    {
+                        reader.Read();
+                        localOutlines = GetPosList3D(reader);
+                    }
+                }
+            }
+
+            if (isStartElement(reader, "interior"))
+            {
+                localHoles.Add(new List<Vector3>());
+                while (isEndElement(reader, "interior") == false)
+                {
+                    reader.Read();
+                    if (isStartElement(reader, "pos"))
+                    {
+                        reader.Read();
+
+                        Vector3 unityVector3d = GetPos3D(reader);
+
+                        localHoles.Last().Add(unityVector3d);
+                    }
+                    else if (isStartElement(reader, "posList"))
+                    {
+                        reader.Read();
+                        //var lastHole = localHoles.Last();
+                        //lastHole = GetPosList3D(reader);
+                        int lastHoleIdx = localHoles.Count;
+                        localHoles[lastHoleIdx-1] = GetPosList3D(reader);
+                    }
+                }
+            }
+        }
+
+        outLines.Add(localOutlines);
+
+        for (int i = 0; i < localHoles.Count(); i++)
+        {
+            outLines.Add(localHoles[i]);
+        }
+
+        var polygon_pb = ProBuilderMesh.Create();
+
+
+        IList<IList<Vector3>> localHoles_pb = new List<IList<Vector3>>(localHoles);
+
+        polygon_pb.CreateShapeFromPolygon(localOutlines, 0, false, localHoles_pb);
+
+        return polygon_pb;
+
+        //Poly2Mesh.Polygon polygon = new Poly2Mesh.Polygon();
+        //polygon.outside = localOutlines;
+        //polygon.holes = localHoles;
+
+        //return polygon;
+    }
+
+    private Poly2Mesh.Polygon OnPolygon_old(XmlReader reader)
     {
         List<Vector3> localOutlines = new List<Vector3>();
         List<List<Vector3>> localHoles = new List<List<Vector3>>();
@@ -197,7 +281,7 @@ public class QuickParserPB : MonoBehaviour
             double lengthX = coordMaxX - coordMinX;
             double lengthZ = coordMaxZ - coordMinZ;
 
-            longerAxisLength = lengthX > lengthZ ? Math.Abs(lengthX) : Math.Abs(lengthZ);
+            longerAxisLength = lengthX > lengthZ ? System.Math.Abs(lengthX) : System.Math.Abs(lengthZ);
 
             // Nothing to do more.
             return Vector3.zero;
@@ -354,8 +438,8 @@ public class QuickParserPB : MonoBehaviour
     
     public float GetUnitSize()
     {
-        float localMax = Math.Max(sceneBound.size.z, sceneBound.size.x);
-        localMax = Math.Max(localMax, sceneBound.size.y);
+        float localMax = System.Math.Max(sceneBound.size.z, sceneBound.size.x);
+        localMax = System.Math.Max(localMax, sceneBound.size.y);
 
         return localMax / 100f;
     }
@@ -482,8 +566,11 @@ public class QuickParserPB : MonoBehaviour
                     reader.Read();
                     if (isStartElement(reader, "Polygon") || isStartElement(reader, "PolygonPatch"))
                     {
-                        Poly2Mesh.Polygon polygon = OnPolygon(reader);
-                        GameObject genPolygon = Poly2Mesh.CreateGameObject(polygon);
+                        //Poly2Mesh.Polygon polygon = OnPolygon(reader);
+                        var polygon = OnPolygon_PB(reader);
+
+                        //GameObject genPolygon = Poly2Mesh.CreateGameObject(polygon);
+                        GameObject genPolygon = polygon.gameObject;
 
                         genPolygon.name = string.Format("{0}_Face:{1}", localName, faceCnt++);
                         genPolygon.transform.parent = solid.transform;
@@ -491,13 +578,13 @@ public class QuickParserPB : MonoBehaviour
                         // 각 솔리드에서 가장 낮은 면을 바닥으로 잡음.
                         // 조금은 기울어진 바닥이라 할지라도 잡아낼 수 있게끔한게 의도.
                         // 현재까지의 모든 데이터는 바닥이 모두 평면으로 되어 있음.
-                        float thisMinY = polygon.outside.Average(v => v.y);
-                        if (thisMinY < lowestHeight)
-                        {
-                            lowestHeight = thisMinY;
-                            floorPolygon = polygon;
-                            lowestFaceName = localName;
-                        }
+                        //float thisMinY = polygon.outside.Average(v => v.y);
+                        //if (thisMinY < lowestHeight)
+                        //{
+                        //    lowestHeight = thisMinY;
+                        //    floorPolygon = polygon;
+                        //    lowestFaceName = localName;
+                        //}
                         ApplyCellSpaceMaterial(localType, genPolygon);
                     }
                 }
@@ -538,7 +625,8 @@ public class QuickParserPB : MonoBehaviour
     private void OnCellSpaceBoundaryMember(XmlReader reader)
     {
         List<Vector2> localUVs = new List<Vector2>();
-        Poly2Mesh.Polygon localPolygon = new Poly2Mesh.Polygon();
+        //Poly2Mesh.Polygon localPolygon = new Poly2Mesh.Polygon();
+        ProBuilderMesh localPolygon = new ProBuilderMesh();
         string localFileName = string.Empty;
         string localName = string.Empty;
         while (isEndElement(reader, "cellSpaceBoundaryMember") == false)
@@ -553,7 +641,9 @@ public class QuickParserPB : MonoBehaviour
 
             if (isStartElement(reader, "Polygon") || isStartElement(reader, "PolygonPatch"))
             {
-                localPolygon = OnPolygon(reader);
+                //localPolygon = OnPolygon_PB(reader);
+                localPolygon = OnPolygon_PB(reader);
+                //localPolygon_PB.uv
             }
 
             if (isStartElement(reader, "TextureImage"))
@@ -590,33 +680,36 @@ public class QuickParserPB : MonoBehaviour
 
         if (localUVs.Count() > 2)
         {
-            localPolygon.outsideUVs = localUVs;
-            localPolygon.holesUVs = new List<List<Vector2>>();
-            localPolygon.outsideUVs.Reverse();
+            //localPolygon.SetUVs(0, new List<Vector4>(localUVs));
+
+
+            //localPolygon.outsideUVs = localUVs;
+            //localPolygon.holesUVs = new List<List<Vector2>>();
+            //localPolygon.outsideUVs.Reverse();
         }
 
-        localPolygon.outside.Reverse();
+        //localPolygon.outside.Reverse();
 
-        for (int i = 0; i < localPolygon.holes.Count(); i++)
-        {
-            localPolygon.holes[i].Reverse();
-            localPolygon.holesUVs.Add(new List<Vector2>());
-        }
+        //for (int i = 0; i < localPolygon.holes.Count(); i++)
+        //{
+        //    localPolygon.holes[i].Reverse();
+        //    localPolygon.holesUVs.Add(new List<Vector2>());
+        //}
 
-        // Texture 구멍 무시.
-        if (string.IsNullOrWhiteSpace(localFileName) == false)
-        {
-            localPolygon.holes = new List<List<Vector3>>();
-            localPolygon.holesUVs = new List<List<Vector2>>();
-        }
+        //// Texture 구멍 무시.
+        //if (string.IsNullOrWhiteSpace(localFileName) == false)
+        //{
+        //    localPolygon.holes = new List<List<Vector3>>();
+        //    localPolygon.holesUVs = new List<List<Vector2>>();
+        //}
 
-        GameObject cellSpaceBoundary = Poly2Mesh.CreateGameObject(localPolygon);
+        GameObject cellSpaceBoundary = localPolygon.gameObject;
         cellSpaceBoundary.name = localName;
 
         if (string.IsNullOrWhiteSpace(localFileName))
         {
             // 일반 벽과 지오메트리 정보가 겹칠경우를 대비하여 앞쪽으로 조금 이동
-            cellSpaceBoundary.transform.Translate(localPolygon.planeNormal * 0.01f);
+            //cellSpaceBoundary.transform.Translate(localPolygon.planeNormal * 0.01f);
         } else
         {
             //덱스쳐가 면별로 긴밀하게 붙어있는 경우 기둥사이가 보이는 현상이 발생하므로 적절히 수치를 조절하여 사용.

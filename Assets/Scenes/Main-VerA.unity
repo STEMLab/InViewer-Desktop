@@ -308,6 +308,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc166b04d0a32c746a254fc48526abe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseHeightFiltering: 1
+  FilterHeight: 24
 --- !u!1 &90574813
 GameObject:
   m_ObjectHideFlags: 0
