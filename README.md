@@ -24,8 +24,8 @@ https://unity3d.com/unity/qa/lts-releases?version=2018.4
 3. Move all output binaries(Source/_GUI/InviewerDesktopGUI/bin/Debug or Release) to [Source/Compiled] folder
 
 - Execute compiled binary 
-1. Goto [Source/Compiled] Folder
-2. Download all files and directories
+1. Download all files and directories
+2. Goto [Source/Compiled] Folder
 3. Run "InviewerDesktopGUI.exe"
 
 ## Usage
