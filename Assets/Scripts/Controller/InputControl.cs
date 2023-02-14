@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InputControl : MonoBehaviour
 {
@@ -20,11 +22,65 @@ public class InputControl : MonoBehaviour
 
     private float GetZoomRatio()
     {
-        return cameraOrbit.transform.localScale.x / originalOrbitScale;
+        // return cameraOrbit.transform.localScale.x / originalOrbitScale;
+        return 1.0f;
     }
 
     void Update()
     {
+        Vector3 mousePos = Input.mousePosition;
+        {
+            if (Screen.width < mousePos.x || Screen.height < mousePos.y || mousePos.y < 0 || mousePos.x < 0 || Application.isFocused == false)
+            {
+                return;
+            }
+        }
+
+        if (Input.GetMouseButtonDown(2))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit[] hitData = Physics.RaycastAll(ray);
+
+            List<string> resultList = new List<string>();
+
+            StringBuilder sb = new StringBuilder(); ;
+            foreach (var oneHit in hitData)
+            {
+                if(oneHit.transform.name.IndexOf("_Face") != -1)
+                {
+                    string targetID = oneHit.transform.name.Split('_')[0];
+                    
+                    if (resultList.Contains(targetID) == false)
+                    {
+                        resultList.Add(targetID);
+                    }
+                }
+            }
+
+
+            string sepRecord = "[#record#]";
+            foreach (string oneTarget in resultList)
+            {
+                sb.Append(QuickParser.GetCellInfo(oneTarget));
+                //sb.Append(oneTarget);
+                sb.Append(sepRecord);
+            }
+
+            var accessPoint = GameObject.Find("_Main_").GetComponent<SendAndReceive>();
+
+            try
+            {
+                accessPoint.SendToGUI($"HIT|{sb.ToString()}");
+                //Debug.Log("All Result: " + sb.ToString());
+                GameObject.Find("Text_SendTest").GetComponent<Text>().text = sb.ToString();
+            }
+            catch(Exception e)
+            {
+                GameObject.Find("Text_SendTest").GetComponent<Text>().text = e.Message;
+            }
+            
+        }
+
         // Panning camera action like what you think.
         if (Input.GetMouseButtonDown(1))
         {
@@ -67,7 +123,34 @@ public class InputControl : MonoBehaviour
         }
         else if (scrollFactor != 0)
         {
-            cameraOrbit.transform.localScale = cameraOrbit.transform.localScale * (1f - scrollFactor);
+            //if(Math.Abs(scrollFactor) < 0.2f)
+            //{
+            //    if (scrollFactor < 0)
+            //    {
+            //        scrollFactor = -0.2f;
+            //    }
+            //    else
+            //    {
+            //        scrollFactor = 0.2f;
+            //    }
+            //}
+            //else if (Math.Abs(scrollFactor) > 0.5f)
+            //{
+            //        scrollFactor = 0.05f;
+            //}
+
+            //if(cameraOrbit.transform.localScale < 0.5f)
+            //{
+            //    cameraOrbit.transform.localScale = 0.5f;
+            //}
+
+            if(cameraOrbit.transform.localScale.z < 1f)
+            {
+                cameraOrbit.transform.localScale = new Vector3(1, 1, 1);
+            }
+
+            cameraOrbit.transform.localScale *= (1f - scrollFactor);
+           
         }
     }
 }

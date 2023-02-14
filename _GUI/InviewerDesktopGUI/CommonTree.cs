@@ -4,6 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+// Visual Studio Side
+
+
 class CommonTree
 {
     public string[] ROOT;
@@ -13,8 +17,16 @@ class CommonTree
     public int[] ROOT_GENERALSPACE_FACES_CNT;
     public string[] ROOT_TRANSITIONSPACE;
     public int[] ROOT_TRANSITIONSPACEFACES_CNT;
+
+    public string[] ROOT_CONNECTIONSPACE;
+    public int[] ROOT_CONNECTIONSPACEFACES_CNT;
+
+    public string[] ROOT_ANCHORSPACE;
+    public int[] ROOT_ANCHORSPACEFACES_CNT;
+
     public string[] ROOT_CELLSPACEBOUNDARY;
     public string[] ROOT_STATE;
     public string[] ROOT_TRANSITION;
+
 }
 

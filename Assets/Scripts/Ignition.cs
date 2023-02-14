@@ -19,10 +19,10 @@ public class Ignition : MonoBehaviour
 
         //CommonObjs.Init();
 
-        if (Application.isEditor == false)
-        {
-            GameObject.Find("Canvas").SetActive(false);
-        }
+        //if (Application.isEditor == false)
+        //{
+        //    GameObject.Find("Canvas").SetActive(false);
+        //}
     }
 
     public void OpenFileDialog()
@@ -49,6 +49,16 @@ public class Ignition : MonoBehaviour
         CommonObjs.gmlRootTransitionSpace.SetActive(show);
     }
 
+    public void ToggleConnectionSpace(bool show)
+    {
+        CommonObjs.gmlRootConnectionSpace.SetActive(show);
+    }
+
+    public void ToggleAnchorSpace(bool show)
+    {
+        CommonObjs.gmlRootAnchorSpace.SetActive(show);
+    }
+
     public void ToggleCellSpaceBoundary(bool show)
     {
         CommonObjs.gmlRootCellSpaceBoundary.SetActive(show);
@@ -64,6 +74,8 @@ public class Ignition : MonoBehaviour
         CommonObjs.gmlRootTransition.SetActive(show);
     }
 
+    public static float lastStateSize = 1;
+
     public void ShortLoad(string fileURL)
     {
         GameObject.Destroy(GameObject.Find(CommonNames.ROOT));
@@ -71,7 +83,9 @@ public class Ignition : MonoBehaviour
 
         quickParser.Load(fileURL);
 
-        UpdateStatesSize(0.3f);
+        UpdateStatesSize();
+
+        //UpdateStatesSize(0.3f);
 
         //Debug.Log(totalBounds.ToString());
 
@@ -106,13 +120,32 @@ public class Ignition : MonoBehaviour
 
     public void UpdateStatesSize(float multiple)
     {
+        lastStateSize = multiple;
+
         int state_size = Convert.ToInt32(quickParser.GetUnitSize() * multiple);
         var states = GameObject.FindGameObjectsWithTag("TAG_STATE");
         foreach (var state in states)
         {
-            state.transform.localScale = new Vector3(state_size, state_size, state_size);
+            if (state.transform.localScale != Vector3.zero)
+            {
+                state.transform.localScale = new Vector3(state_size, state_size, state_size);
+            }
         }
     }
+
+    public void UpdateStatesSize()
+    {
+        int state_size = Convert.ToInt32(quickParser.GetUnitSize() * lastStateSize);
+        var states = GameObject.FindGameObjectsWithTag("TAG_STATE");
+        foreach (var state in states)
+        {
+            if (state.transform.localScale != Vector3.zero)
+            {
+                state.transform.localScale = new Vector3(state_size, state_size, state_size);
+            }
+        }
+    }
+
 
     //void OnDrawGizmos()
     //{
@@ -259,9 +292,21 @@ public class Ignition : MonoBehaviour
         {
             resultMat = CommonObjs.materialTransitionSpace;
         }
-        else
+        else if (tag.Equals("TAG_CONNECTIONSPACE"))
+        {
+            resultMat = CommonObjs.materialConnectionSpace;
+        }
+        else if (tag.Equals("TAG_ANCHORSPACE"))
+        {
+            resultMat = CommonObjs.materialAnchorSpace;
+        }
+        else if (tag.Equals("TAG_CELLSPACEBOUNDARY"))
         {
             resultMat = CommonObjs.materialCellSpaceBoundary;
+        }
+        else
+        {
+            resultMat = CommonObjs.materialCellSpace;
         }
 
         return resultMat;

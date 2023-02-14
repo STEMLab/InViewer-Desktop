@@ -7,7 +7,7 @@ A Unity3D based viewer for visualizing OGC IndoorGML data
 
 ## Prerequisites
 
-- Unity3D >= ^2018.4.6f1 (LTS Releases)
+- Unity3D >= ^2018.4.8f1 (LTS Releases)
 
 ## Quick Start
 
@@ -39,5 +39,5 @@ https://unity3d.com/unity/qa/lts-releases?version=2018.4
 
 Name | E-mail | Affiliation
 --- | --- | ---
-**Yongsu Song** | songys@pnu.edu | Pusan National University
+**Yongsu Song** | largesys@gmail.com | Pusan National University
 

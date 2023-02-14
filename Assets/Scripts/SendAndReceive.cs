@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using DG.Tweening;
 using System.IO;
 using System.IO.Compression;
+using System.Diagnostics;
 
 public class SendAndReceive : MonoBehaviour
 {
@@ -47,11 +48,31 @@ public class SendAndReceive : MonoBehaviour
 
         materialSelected = Resources.Load("Materials/SelectedObject", typeof(Material)) as Material;
         mainFuncs = GetComponent<Ignition>();
+
+        // 유니티 뷰어모듈만 살아남는건 안됨.
+        #if UNITY_STANDALONE_WIN
+                StartCoroutine(WatchDog());
+        #endif
     }
 
     public void TestFuncB()
     {
         dataFromGUI = "HIDE|State";
+    }
+
+    IEnumerator WatchDog()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1);
+            // GUI 프로세스를 통해 실행한게 아니라면 강제 종료.
+            // 또는 GUI가 단독으로 죽었을 경우도 종료.
+            Process[] processList = Process.GetProcessesByName("InviewerDesktopGUI");
+            if (processList.Length < 1)
+            {
+                Application.Quit(-1);
+            }
+        }
     }
 
     void Update()
@@ -91,6 +112,8 @@ public class SendAndReceive : MonoBehaviour
                     || showObjects[0].Equals(CommonNames.ROOT_GENERALSPACE)
                     || showObjects[0].Equals(CommonNames.ROOT_STATE)
                     || showObjects[0].Equals(CommonNames.ROOT_TRANSITION)
+                    || showObjects[0].Equals(CommonNames.ROOT_CONNECTIONSPACE)
+                    || showObjects[0].Equals(CommonNames.ROOT_ANCHORSPACE)
                     || showObjects[0].Equals(CommonNames.ROOT_TRANSITIONSPACE)))
                 {
                     var root = GameObject.Find(showObjects[0].TrimEnd()).transform;
@@ -117,6 +140,8 @@ public class SendAndReceive : MonoBehaviour
                     || hideObjects[0].Equals(CommonNames.ROOT_GENERALSPACE)
                     || hideObjects[0].Equals(CommonNames.ROOT_STATE)
                     || hideObjects[0].Equals(CommonNames.ROOT_TRANSITION)
+                    || hideObjects[0].Equals(CommonNames.ROOT_CONNECTIONSPACE)
+                    || hideObjects[0].Equals(CommonNames.ROOT_ANCHORSPACE)
                     || hideObjects[0].Equals(CommonNames.ROOT_TRANSITIONSPACE)))
                 {
                     var root = GameObject.Find(hideObjects[0].TrimEnd()).transform;
@@ -201,6 +226,21 @@ public class SendAndReceive : MonoBehaviour
                     mainFuncs.CellSpaceBoundaryBackFaceCulling(true);
                 }
             }
+            else if (guiCmd.Equals("PATHNORMAL"))
+            {
+                string[] tokens = guiParam.Split(',');
+                GetComponent<QuickParser>().GoNormal(false, Convert.ToInt32(tokens[0]), Convert.ToInt32(tokens[1]));
+            }
+            else if (guiCmd.Equals("PATHFIRE"))
+            {
+                string[] tokens = guiParam.Split(',');
+                GetComponent<QuickParser>().GoNormal(true, Convert.ToInt32(tokens[0]), Convert.ToInt32(tokens[1]));
+            }
+            else if (guiCmd.Equals("PATHCLEAR"))
+            {
+                QuickParser.fastestEdgeList.Clear();
+                GetComponent<QuickParser>().SelectOneStorey(GameObject.Find("Dropdown_storey").GetComponent<Dropdown>().value);
+            }
         }
     }
 
@@ -211,10 +251,6 @@ public class SendAndReceive : MonoBehaviour
         SendToGUI(TreeToJSON());
     }
 
-    public void HideObject(GameObject obj)
-    {
-        obj.transform.localScale = new Vector3(0, 0, 0);
-    }
 
     public void HideObject(string id)
     {
@@ -229,11 +265,49 @@ public class SendAndReceive : MonoBehaviour
         ShowObject(obj);
     }
 
+    public void HideObject(GameObject obj)
+    {
+        obj.transform.localScale = new Vector3(0, 0, 0);
+    }
+
     public void ShowObject(GameObject obj)
     {
+        string outValue;
+
+        bool doShow = false;
+
+        if (QuickParser.dictCellToStorey.TryGetValue(obj.name, out outValue))
+        {
+            if (outValue == QuickParser.selectedStorey)
+            {
+                doShow = true;
+            }
+        }
+
+        if (QuickParser.dictStateToStorey.TryGetValue(obj.name, out outValue))
+        {
+            if (outValue == QuickParser.selectedStorey)
+            {
+                doShow = true;
+            }
+        }
+
+        if (QuickParser.dictTransitionToStorey.TryGetValue(obj.name, out outValue))
+        {
+            if (outValue == QuickParser.selectedStorey)
+            {
+                doShow = true;
+            }
+        }
+
+        if(doShow == false && QuickParser.selectedStorey != "")
+        {
+            return;
+        }
+
         if (obj.transform.parent.name.Equals(CommonNames.ROOT_STATE))
         {
-            float state_size = mainFuncs.quickParser.GetUnitSize();
+            float state_size = mainFuncs.quickParser.GetUnitSize() * Ignition.lastStateSize;
             obj.transform.localScale = new Vector3(state_size, state_size, state_size);
         }
         else
@@ -277,7 +351,7 @@ public class SendAndReceive : MonoBehaviour
 
         var resultRot = new Vector3(45, 225, 0);
         var resultPos = myBounds.center - distance * (Quaternion.Euler(resultRot) * Vector3.forward);
-        
+
         if (targetObj.tag.Equals("TAG_STATE"))
         {
             resultPos = targetObj.transform.position - mainFuncs.quickParser.GetUnitSize() * 5 * (Quaternion.Euler(resultRot) * Vector3.forward);
@@ -301,6 +375,29 @@ public class SendAndReceive : MonoBehaviour
                 HighlightedObject.GetComponent<Renderer>().material = materialOriginal;
             }
         }
+        //if (HighlightedObject != null)
+        //{ 
+        //    if (HighlightedObject.tag == "TAG_TRANSITIONSPACE")
+        //    {
+        //        HighlightedObject.GetComponent<Renderer>().material = CommonObjs.materialTransitionSpace;
+        //    }
+        //    else if (HighlightedObject.tag == "TAG_GENERALSPACE")
+        //    {
+        //        HighlightedObject.GetComponent<Renderer>().material = CommonObjs.materialGeneralSpace;
+        //    }
+        //    else if (HighlightedObject.tag == "TAG_CONNECTIONSPACE")
+        //    {
+        //        HighlightedObject.GetComponent<Renderer>().material = CommonObjs.materialConnectionSpace; ;
+        //    }
+        //    else if (HighlightedObject.tag == "TAG_ANCHORSPACE")
+        //    {
+        //        HighlightedObject.GetComponent<Renderer>().material = CommonObjs.materialAnchorSpace;
+        //    }
+        //    else
+        //    {
+        //        HighlightedObject.GetComponent<Renderer>().material = CommonObjs.materialCellSpace;
+        //    }
+        //}
 
         HighlightedObject = targetObj;
 
@@ -364,6 +461,27 @@ public class SendAndReceive : MonoBehaviour
             currentTree.ROOT_TRANSITIONSPACEFACES_CNT[i] = tmpObject.transform.GetChild(i).childCount;
         }
 
+
+        tmpObject = GameObject.Find(CommonNames.ROOT_CONNECTIONSPACE);
+        cntObject = tmpObject.transform.childCount;
+        currentTree.ROOT_CONNECTIONSPACE = new string[cntObject];
+        currentTree.ROOT_CONNECTIONSPACEFACES_CNT = new int[cntObject];
+        for (int i = 0; i < cntObject; i++)
+        {
+            currentTree.ROOT_CONNECTIONSPACE[i] = tmpObject.transform.GetChild(i).name;
+            currentTree.ROOT_CONNECTIONSPACEFACES_CNT[i] = tmpObject.transform.GetChild(i).childCount;
+        }
+
+        tmpObject = GameObject.Find(CommonNames.ROOT_ANCHORSPACE);
+        cntObject = tmpObject.transform.childCount;
+        currentTree.ROOT_ANCHORSPACE = new string[cntObject];
+        currentTree.ROOT_ANCHORSPACEFACES_CNT = new int[cntObject];
+        for (int i = 0; i < cntObject; i++)
+        {
+            currentTree.ROOT_ANCHORSPACE[i] = tmpObject.transform.GetChild(i).name;
+            currentTree.ROOT_ANCHORSPACEFACES_CNT[i] = tmpObject.transform.GetChild(i).childCount;
+        }
+
         tmpObject = GameObject.Find(CommonNames.ROOT_CELLSPACEBOUNDARY);
         cntObject = tmpObject.transform.childCount;
         currentTree.ROOT_CELLSPACEBOUNDARY = new string[cntObject];
@@ -408,7 +526,7 @@ public class SendAndReceive : MonoBehaviour
         }
     }
 
-    private void SendToGUI(string msg)
+    public void SendToGUI(string msg)
     {
         byte[] sendBytes = Encoding.ASCII.GetBytes(msg);
 
