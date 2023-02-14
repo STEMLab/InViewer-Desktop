@@ -7,7 +7,7 @@ A Unity3D based viewer for visualizing OGC IndoorGML data
 
 ## Prerequisites
 
-- Unity3D >= ^2018.4.6f1 (LTS Releases)
+- Unity3D >= ^2018.4.8f1 (LTS Releases)
 
 ## Quick Start
 
@@ -24,14 +24,13 @@ https://unity3d.com/unity/qa/lts-releases?version=2018.4
 3. Move all output binaries(Source/_GUI/InviewerDesktopGUI/bin/Debug or Release) to [Source/Compiled] folder
 
 - Execute compiled binary 
-1. Goto [Source/Compiled] Folder
-2. Download all files and directories
+1. Download all files and directories
+2. Goto [Source/Compiled] Folder
 3. Run "InviewerDesktopGUI.exe"
 
 ## Usage
-- Mouse Left-Button Drag : Panning
-- Mouse Right-Button Drag : Fast Zoom in Out
-- Mouse Middle-Button Drag : Rotation
+- Mouse Left-Button Drag : Rotation
+- Mouse Right-Button Drag : Panning
 - Mouse Wheel Up&Down : Zoom in and out
 
 - (Left side on window) Tree controller double click : short-cut to select item.
@@ -40,5 +39,5 @@ https://unity3d.com/unity/qa/lts-releases?version=2018.4
 
 Name | E-mail | Affiliation
 --- | --- | ---
-**Yongsu Song** | songys@pnu.edu | Pusan National University
+**Yongsu Song** | largesys@gmail.com | Pusan National University
 

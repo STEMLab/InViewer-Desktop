@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IndoorGMLViewerForm));
-            this.treeView_IndoorGML = new System.Windows.Forms.TreeView();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openIndoorGMLOToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,9 +57,6 @@
             this.sideViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.frontViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.topViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.splitContainer_Main = new System.Windows.Forms.SplitContainer();
-            this.splitContainer_Right = new System.Windows.Forms.SplitContainer();
-            this.richTextBox_IndoorGML = new System.Windows.Forms.RichTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton_OpenFile = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -75,41 +71,33 @@
             this.toolStripButton_Query = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.splitContainer_Right = new System.Windows.Forms.SplitContainer();
+            this.richTextBox_IndoorGML = new System.Windows.Forms.RichTextBox();
+            this.treeView_IndoorGML = new System.Windows.Forms.TreeView();
+            this.splitContainer_Main = new System.Windows.Forms.SplitContainer();
             this.menuStrip1.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Right)).BeginInit();
+            this.splitContainer_Right.Panel2.SuspendLayout();
+            this.splitContainer_Right.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Main)).BeginInit();
             this.splitContainer_Main.Panel1.SuspendLayout();
             this.splitContainer_Main.Panel2.SuspendLayout();
             this.splitContainer_Main.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Right)).BeginInit();
-            this.splitContainer_Right.Panel2.SuspendLayout();
-            this.splitContainer_Right.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // treeView_IndoorGML
-            // 
-            this.treeView_IndoorGML.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.treeView_IndoorGML.CheckBoxes = true;
-            this.treeView_IndoorGML.Location = new System.Drawing.Point(3, 3);
-            this.treeView_IndoorGML.Name = "treeView_IndoorGML";
-            this.treeView_IndoorGML.Size = new System.Drawing.Size(225, 631);
-            this.treeView_IndoorGML.TabIndex = 0;
-            this.treeView_IndoorGML.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.node_AfterCheck);
-            this.treeView_IndoorGML.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_IndoorGML_AfterSelect);
-            this.treeView_IndoorGML.DoubleClick += new System.EventHandler(this.treeView_IndoorGML_DoubleClick);
             // 
             // menuStrip1
             // 
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileFToolStripMenuItem,
             this.editEToolStripMenuItem,
             this.viewVToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1561, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
+            this.menuStrip1.Size = new System.Drawing.Size(1347, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -120,7 +108,7 @@
             this.toolStripSeparator1,
             this.quitQToolStripMenuItem});
             this.fileFToolStripMenuItem.Name = "fileFToolStripMenuItem";
-            this.fileFToolStripMenuItem.Size = new System.Drawing.Size(51, 20);
+            this.fileFToolStripMenuItem.Size = new System.Drawing.Size(51, 22);
             this.fileFToolStripMenuItem.Text = "File(&F)";
             // 
             // openIndoorGMLOToolStripMenuItem
@@ -148,7 +136,7 @@
             this.cullingSpacesToolStripMenuItem,
             this.stateSizeToolStripMenuItem});
             this.editEToolStripMenuItem.Name = "editEToolStripMenuItem";
-            this.editEToolStripMenuItem.Size = new System.Drawing.Size(86, 20);
+            this.editEToolStripMenuItem.Size = new System.Drawing.Size(86, 22);
             this.editEToolStripMenuItem.Text = "Materials(&M)";
             // 
             // cullingSpacesToolStripMenuItem
@@ -159,7 +147,7 @@
             this.transitionSpaceToolStripMenuItem,
             this.cellSpaceBoundaryToolStripMenuItem});
             this.cullingSpacesToolStripMenuItem.Name = "cullingSpacesToolStripMenuItem";
-            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cullingSpacesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.cullingSpacesToolStripMenuItem.Text = "Back-face Culling";
             // 
             // cellSpaceToolStripMenuItem
@@ -201,7 +189,7 @@
             this.middleToolStripMenuItem,
             this.smallToolStripMenuItem});
             this.stateSizeToolStripMenuItem.Name = "stateSizeToolStripMenuItem";
-            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.stateSizeToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.stateSizeToolStripMenuItem.Text = "State Size";
             // 
             // largeToolStripMenuItem
@@ -244,7 +232,7 @@
             this.frontViewToolStripMenuItem,
             this.topViewToolStripMenuItem});
             this.viewVToolStripMenuItem.Name = "viewVToolStripMenuItem";
-            this.viewVToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.viewVToolStripMenuItem.Size = new System.Drawing.Size(61, 22);
             this.viewVToolStripMenuItem.Text = "View(&V)";
             // 
             // hideSelectedItemsHToolStripMenuItem
@@ -336,62 +324,6 @@
             this.topViewToolStripMenuItem.Text = "Top View";
             this.topViewToolStripMenuItem.Click += new System.EventHandler(this.topViewToolStripMenuItem_Click);
             // 
-            // splitContainer_Main
-            // 
-            this.splitContainer_Main.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer_Main.Location = new System.Drawing.Point(12, 67);
-            this.splitContainer_Main.Name = "splitContainer_Main";
-            // 
-            // splitContainer_Main.Panel1
-            // 
-            this.splitContainer_Main.Panel1.Controls.Add(this.treeView_IndoorGML);
-            // 
-            // splitContainer_Main.Panel2
-            // 
-            this.splitContainer_Main.Panel2.Controls.Add(this.splitContainer_Right);
-            this.splitContainer_Main.Size = new System.Drawing.Size(1537, 647);
-            this.splitContainer_Main.SplitterDistance = 231;
-            this.splitContainer_Main.TabIndex = 3;
-            // 
-            // splitContainer_Right
-            // 
-            this.splitContainer_Right.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer_Right.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer_Right.Name = "splitContainer_Right";
-            this.splitContainer_Right.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer_Right.Panel1
-            // 
-            this.splitContainer_Right.Panel1.BackColor = System.Drawing.Color.Coral;
-            this.splitContainer_Right.Panel1.Resize += new System.EventHandler(this.Panel_Unity3D_Resize);
-            // 
-            // splitContainer_Right.Panel2
-            // 
-            this.splitContainer_Right.Panel2.Controls.Add(this.richTextBox_IndoorGML);
-            this.splitContainer_Right.Size = new System.Drawing.Size(1302, 647);
-            this.splitContainer_Right.SplitterDistance = 453;
-            this.splitContainer_Right.TabIndex = 0;
-            // 
-            // richTextBox_IndoorGML
-            // 
-            this.richTextBox_IndoorGML.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox_IndoorGML.AutoWordSelection = true;
-            this.richTextBox_IndoorGML.HideSelection = false;
-            this.richTextBox_IndoorGML.Location = new System.Drawing.Point(3, 3);
-            this.richTextBox_IndoorGML.Name = "richTextBox_IndoorGML";
-            this.richTextBox_IndoorGML.ReadOnly = true;
-            this.richTextBox_IndoorGML.Size = new System.Drawing.Size(1296, 174);
-            this.richTextBox_IndoorGML.TabIndex = 0;
-            this.richTextBox_IndoorGML.Text = "";
-            this.richTextBox_IndoorGML.WordWrap = false;
-            this.richTextBox_IndoorGML.SelectionChanged += new System.EventHandler(this.richTextBox_IndoorGML_SelectionChanged);
-            // 
             // toolStrip1
             // 
             this.toolStrip1.AutoSize = false;
@@ -410,7 +342,8 @@
             this.toolStripButton_Query});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1561, 40);
+            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            this.toolStrip1.Size = new System.Drawing.Size(1347, 40);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -516,56 +449,126 @@
             // 
             // statusStrip1
             // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 704);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 685);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1561, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1347, 22);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(1546, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(1332, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Ready";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // splitContainer_Right
+            // 
+            this.splitContainer_Right.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer_Right.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer_Right.Name = "splitContainer_Right";
+            this.splitContainer_Right.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer_Right.Panel1
+            // 
+            this.splitContainer_Right.Panel1.BackColor = System.Drawing.Color.Coral;
+            this.splitContainer_Right.Panel1.Margin = new System.Windows.Forms.Padding(10);
+            this.splitContainer_Right.Panel1.Resize += new System.EventHandler(this.Panel_Unity3D_Resize);
+            // 
+            // splitContainer_Right.Panel2
+            // 
+            this.splitContainer_Right.Panel2.Controls.Add(this.richTextBox_IndoorGML);
+            this.splitContainer_Right.Size = new System.Drawing.Size(1125, 609);
+            this.splitContainer_Right.SplitterDistance = 547;
+            this.splitContainer_Right.TabIndex = 0;
+            // 
+            // richTextBox_IndoorGML
+            // 
+            this.richTextBox_IndoorGML.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBox_IndoorGML.AutoWordSelection = true;
+            this.richTextBox_IndoorGML.HideSelection = false;
+            this.richTextBox_IndoorGML.Location = new System.Drawing.Point(3, 3);
+            this.richTextBox_IndoorGML.Name = "richTextBox_IndoorGML";
+            this.richTextBox_IndoorGML.ReadOnly = true;
+            this.richTextBox_IndoorGML.Size = new System.Drawing.Size(1119, 52);
+            this.richTextBox_IndoorGML.TabIndex = 0;
+            this.richTextBox_IndoorGML.Text = "";
+            this.richTextBox_IndoorGML.WordWrap = false;
+            this.richTextBox_IndoorGML.SelectionChanged += new System.EventHandler(this.richTextBox_IndoorGML_SelectionChanged);
+            // 
+            // treeView_IndoorGML
+            // 
+            this.treeView_IndoorGML.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.treeView_IndoorGML.CheckBoxes = true;
+            this.treeView_IndoorGML.Location = new System.Drawing.Point(3, 3);
+            this.treeView_IndoorGML.Name = "treeView_IndoorGML";
+            this.treeView_IndoorGML.Size = new System.Drawing.Size(194, 609);
+            this.treeView_IndoorGML.TabIndex = 0;
+            this.treeView_IndoorGML.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.node_AfterCheck);
+            this.treeView_IndoorGML.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_IndoorGML_AfterSelect);
+            this.treeView_IndoorGML.DoubleClick += new System.EventHandler(this.treeView_IndoorGML_DoubleClick);
+            // 
+            // splitContainer_Main
+            // 
+            this.splitContainer_Main.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer_Main.Location = new System.Drawing.Point(12, 67);
+            this.splitContainer_Main.Name = "splitContainer_Main";
+            // 
+            // splitContainer_Main.Panel1
+            // 
+            this.splitContainer_Main.Panel1.Controls.Add(this.treeView_IndoorGML);
+            // 
+            // splitContainer_Main.Panel2
+            // 
+            this.splitContainer_Main.Panel2.Controls.Add(this.splitContainer_Right);
+            this.splitContainer_Main.Size = new System.Drawing.Size(1335, 615);
+            this.splitContainer_Main.SplitterDistance = 200;
+            this.splitContainer_Main.TabIndex = 3;
             // 
             // IndoorGMLViewerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1561, 726);
+            this.ClientSize = new System.Drawing.Size(1347, 707);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.splitContainer_Main);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "IndoorGMLViewerForm";
-            this.Text = "Inviewer-Desktop";
+            this.Text = "Inviewer-Desktop-v2";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.splitContainer_Main.Panel1.ResumeLayout(false);
-            this.splitContainer_Main.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Main)).EndInit();
-            this.splitContainer_Main.ResumeLayout(false);
-            this.splitContainer_Right.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Right)).EndInit();
-            this.splitContainer_Right.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.splitContainer_Right.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Right)).EndInit();
+            this.splitContainer_Right.ResumeLayout(false);
+            this.splitContainer_Main.Panel1.ResumeLayout(false);
+            this.splitContainer_Main.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Main)).EndInit();
+            this.splitContainer_Main.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.TreeView treeView_IndoorGML;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileFToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editEToolStripMenuItem;
@@ -573,8 +576,6 @@
         private System.Windows.Forms.ToolStripMenuItem openIndoorGMLOToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem quitQToolStripMenuItem;
-        private System.Windows.Forms.SplitContainer splitContainer_Main;
-        private System.Windows.Forms.SplitContainer splitContainer_Right;
         private System.Windows.Forms.ToolStripMenuItem hideSelectedItemsHToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem shotSelectedItemsSToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toggleSelectedItemsAToolStripMenuItem;
@@ -608,9 +609,12 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton toolStripButton_RotateView;
         private System.Windows.Forms.ToolStripButton toolStripButton_Query;
-        private System.Windows.Forms.RichTextBox richTextBox_IndoorGML;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.SplitContainer splitContainer_Right;
+        private System.Windows.Forms.RichTextBox richTextBox_IndoorGML;
+        private System.Windows.Forms.TreeView treeView_IndoorGML;
+        private System.Windows.Forms.SplitContainer splitContainer_Main;
     }
 }
 

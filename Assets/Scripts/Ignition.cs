@@ -19,10 +19,10 @@ public class Ignition : MonoBehaviour
 
         //CommonObjs.Init();
 
-        if (Application.isEditor == false)
-        {
-            GameObject.Find("Canvas").SetActive(false);
-        }
+        //if (Application.isEditor == false)
+        //{
+        //    GameObject.Find("Canvas").SetActive(false);
+        //}
     }
 
     public void OpenFileDialog()
@@ -49,6 +49,16 @@ public class Ignition : MonoBehaviour
         CommonObjs.gmlRootTransitionSpace.SetActive(show);
     }
 
+    public void ToggleConnectionSpace(bool show)
+    {
+        CommonObjs.gmlRootConnectionSpace.SetActive(show);
+    }
+
+    public void ToggleAnchorSpace(bool show)
+    {
+        CommonObjs.gmlRootAnchorSpace.SetActive(show);
+    }
+
     public void ToggleCellSpaceBoundary(bool show)
     {
         CommonObjs.gmlRootCellSpaceBoundary.SetActive(show);
@@ -64,6 +74,8 @@ public class Ignition : MonoBehaviour
         CommonObjs.gmlRootTransition.SetActive(show);
     }
 
+    public static float lastStateSize = 1;
+
     public void ShortLoad(string fileURL)
     {
         GameObject.Destroy(GameObject.Find(CommonNames.ROOT));
@@ -71,7 +83,9 @@ public class Ignition : MonoBehaviour
 
         quickParser.Load(fileURL);
 
-        UpdateStatesSize(1);
+        UpdateStatesSize();
+
+        //UpdateStatesSize(0.3f);
 
         //Debug.Log(totalBounds.ToString());
 
@@ -106,13 +120,32 @@ public class Ignition : MonoBehaviour
 
     public void UpdateStatesSize(float multiple)
     {
+        lastStateSize = multiple;
+
         int state_size = Convert.ToInt32(quickParser.GetUnitSize() * multiple);
         var states = GameObject.FindGameObjectsWithTag("TAG_STATE");
         foreach (var state in states)
         {
-            state.transform.localScale = new Vector3(state_size, state_size, state_size);
+            if (state.transform.localScale != Vector3.zero)
+            {
+                state.transform.localScale = new Vector3(state_size, state_size, state_size);
+            }
         }
     }
+
+    public void UpdateStatesSize()
+    {
+        int state_size = Convert.ToInt32(quickParser.GetUnitSize() * lastStateSize);
+        var states = GameObject.FindGameObjectsWithTag("TAG_STATE");
+        foreach (var state in states)
+        {
+            if (state.transform.localScale != Vector3.zero)
+            {
+                state.transform.localScale = new Vector3(state_size, state_size, state_size);
+            }
+        }
+    }
+
 
     //void OnDrawGizmos()
     //{
@@ -127,47 +160,89 @@ public class Ignition : MonoBehaviour
         Vector3 resultPos = new Vector3();
         Vector3 resultRot = new Vector3();
 
+        //switch (direction)
+        //{
+        //    case 1:
+        //        resultRot = new Vector3(45, 45, 0);
+        //        break;
+        //    case 2:
+        //        resultRot = new Vector3(0, 0, 0);
+        //        break;
+        //    case 3:
+        //        resultRot = new Vector3(45, 315, 0);
+        //        break;
+        //    case 4:
+        //        resultRot = new Vector3(0, 90, 0);
+        //        break;
+        //    case 5:
+        //        resultRot = new Vector3(90, 0, 0);
+        //        break;
+        //    case 6:
+        //        resultRot = new Vector3(0, 270, 0);
+        //        break;
+        //    case 7:
+        //        resultRot = new Vector3(45, 135, 0);
+        //        break;
+        //    case 8:
+        //        resultRot = new Vector3(0, 180, 0);
+        //        break;
+        //    case 9:
+        //        resultRot = new Vector3(45, 225, 0);
+        //        break;
+        //    case 51:
+        //        resultRot = new Vector3(90, 90, 0);
+        //        break;
+        //    case 52:
+        //        resultRot = new Vector3(90, 180, 0);
+        //        break;
+        //    case 53:
+        //        resultRot = new Vector3(90, 270, 0);
+        //        break;
+        //    default:
+        //        break;
+        //}
+
+
         switch (direction)
         {
             case 1:
-                resultRot = new Vector3(45, 45, 0);
+                resultRot = new Vector3(0, -45, 45);
                 break;
             case 2:
-                resultRot = new Vector3(0, 0, 0);
+                resultRot = new Vector3(0, -90, 90);
                 break;
             case 3:
-                resultRot = new Vector3(45, 315, 0);
+                resultRot = new Vector3(0, -135, 45);
                 break;
             case 4:
-                resultRot = new Vector3(0, 90, 0);
+                resultRot = new Vector3(0, 0, 90);
                 break;
             case 5:
-                resultRot = new Vector3(90, 0, 0);
+                resultRot = new Vector3(0, -90, 0);
                 break;
             case 6:
-                resultRot = new Vector3(0, 270, 0);
+                resultRot = new Vector3(0, -180, 90);
                 break;
             case 7:
-                resultRot = new Vector3(45, 135, 0);
+                resultRot = new Vector3(0, 45, 45);
                 break;
             case 8:
-                resultRot = new Vector3(0, 180, 0);
+                resultRot = new Vector3(0, 90, 90);
                 break;
             case 9:
-                resultRot = new Vector3(45, 225, 0);
+                resultRot = new Vector3(0, 135, 45);
                 break;
             case 51:
-                resultRot = new Vector3(90, 90, 0);
+                resultRot = new Vector3(0, 0, 1);
                 break;
             case 52:
-                resultRot = new Vector3(90, 180, 0);
+                resultRot = new Vector3(0, 90, 1);
                 break;
             case 53:
-                resultRot = new Vector3(90, 270, 0);
+                resultRot = new Vector3(0, 180, 1);
                 break;
             default:
                 break;
-
         }
 
         frustrumLength = Math.Max(QuickParser.sceneBound.size.z, QuickParser.sceneBound.size.x);
@@ -176,8 +251,9 @@ public class Ignition : MonoBehaviour
         distance = frustrumLength * 0.5f / Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
         resultPos = QuickParser.sceneBound.center - distance * (Quaternion.Euler(resultRot) * Vector3.forward);
 
-        Camera.main.transform.DOMove(resultPos, 1);
-        Camera.main.transform.DORotate(resultRot, 1);
+        //Camera.main.transform.DOMove(resultPos, 1);
+        //Camera.main.transform.DORotate(resultRot, 1);
+        GameObject.Find("Camera Orbit").transform.DORotate(resultRot, 1);
     }
     
     public void GeneralSpaceBackFaceCulling(bool isOn)
@@ -216,9 +292,21 @@ public class Ignition : MonoBehaviour
         {
             resultMat = CommonObjs.materialTransitionSpace;
         }
-        else
+        else if (tag.Equals("TAG_CONNECTIONSPACE"))
+        {
+            resultMat = CommonObjs.materialConnectionSpace;
+        }
+        else if (tag.Equals("TAG_ANCHORSPACE"))
+        {
+            resultMat = CommonObjs.materialAnchorSpace;
+        }
+        else if (tag.Equals("TAG_CELLSPACEBOUNDARY"))
         {
             resultMat = CommonObjs.materialCellSpaceBoundary;
+        }
+        else
+        {
+            resultMat = CommonObjs.materialCellSpace;
         }
 
         return resultMat;

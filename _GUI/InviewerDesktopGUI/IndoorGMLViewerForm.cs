@@ -43,6 +43,8 @@ namespace InviewerDesktopGUI
         private NamedPipeServerStream NPtoUnity;
         private NamedPipeServerStream NPtoGUI;
 
+        CellPropertiesForm cpForm;
+
         public IndoorGMLViewerForm()
         {
             InitializeComponent();
@@ -64,7 +66,7 @@ namespace InviewerDesktopGUI
 
                 process = new Process();
                 process.StartInfo.FileName = @"Inviewer-Desktop.exe";
-                process.StartInfo.Arguments = "-parentHWND " + splitContainer_Right.Panel1.Handle.ToInt32() + " " + Environment.CommandLine;
+                process.StartInfo.Arguments = "-parentHWND " + splitContainer_Right.Panel1.Handle.ToInt32() + " delayed " + Environment.CommandLine;
                 process.StartInfo.UseShellExecute = true;
                 process.StartInfo.CreateNoWindow = true;                        
 
@@ -81,6 +83,9 @@ namespace InviewerDesktopGUI
                 MessageBox.Show(ex.ToString());
                 throw ex;
             }
+
+            cpForm = new CellPropertiesForm(this);
+            cpForm.Show();
         }
 
         private void ActivateUnityWindow()
@@ -156,7 +161,7 @@ namespace InviewerDesktopGUI
             }
         }
 
-        private void SendToUnity(string uiBuffer)
+        public void SendToUnity(string uiBuffer)
         {
             serverStream.WriteString(uiBuffer);
         }
@@ -166,6 +171,9 @@ namespace InviewerDesktopGUI
             //Init
             UpdateLogCallback updateTree = new UpdateLogCallback(UpdateTree);
             string dataFromUnity = null;
+
+            UpdateLogCallback updateHitList = new UpdateLogCallback(UpdateHitList);
+
 
             try
             {
@@ -183,8 +191,17 @@ namespace InviewerDesktopGUI
                     NPtoGUI.Read(readBytes, 0, msgLength);
                     dataFromUnity = Encoding.ASCII.GetString(readBytes);
 
-                    CommonTree loadedTree = new CommonTree();
-                    Invoke(updateTree, new object[] { dataFromUnity });
+                    if (dataFromUnity.StartsWith("HIT") == true)
+                    {
+                        //cpForm.SetData(dataFromUnity);
+                        //cpForm.Show();
+                        Invoke(updateHitList, new object[] { dataFromUnity });
+                    }
+                    else
+                    {
+                        CommonTree loadedTree = new CommonTree();
+                        Invoke(updateTree, new object[] { dataFromUnity });
+                    }
                 }
             }
             catch (Exception ex)
@@ -192,6 +209,12 @@ namespace InviewerDesktopGUI
                 //Handle usual Communication Exceptions here - just logging here for demonstration and debugging Purposes
                 //Invoke(updateLog, new object[] { ex.Message });
             }
+        }
+
+        private void UpdateHitList(string rawInfo)
+        {
+            cpForm.SetData(rawInfo);
+            cpForm.Show();
         }
 
         private void UpdateTree(string jsonTree)
@@ -235,6 +258,28 @@ namespace InviewerDesktopGUI
             {
                 var space = partSpace.Nodes.Add(tree.ROOT_TRANSITIONSPACE[idxOfSpace]);
                 for (int idxOfFace = 0; idxOfFace < tree.ROOT_TRANSITIONSPACEFACES_CNT[idxOfSpace]; idxOfFace++)
+                {
+                    space.Nodes.Add(string.Format("{0}_Face:{1}", space.Text, idxOfFace + 1));
+                }
+            }
+
+
+            partSpace = treeView_IndoorGML.Nodes.Add(CommonNames.ROOT_CONNECTIONSPACE);
+            for (int idxOfSpace = 0; idxOfSpace < tree.ROOT_CONNECTIONSPACE.Length; idxOfSpace++)
+            {
+                var space = partSpace.Nodes.Add(tree.ROOT_CONNECTIONSPACE[idxOfSpace]);
+                for (int idxOfFace = 0; idxOfFace < tree.ROOT_CONNECTIONSPACEFACES_CNT[idxOfSpace]; idxOfFace++)
+                {
+                    space.Nodes.Add(string.Format("{0}_Face:{1}", space.Text, idxOfFace + 1));
+                }
+            }
+
+
+            partSpace = treeView_IndoorGML.Nodes.Add(CommonNames.ROOT_ANCHORSPACE);
+            for (int idxOfSpace = 0; idxOfSpace < tree.ROOT_ANCHORSPACE.Length; idxOfSpace++)
+            {
+                var space = partSpace.Nodes.Add(tree.ROOT_ANCHORSPACE[idxOfSpace]);
+                for (int idxOfFace = 0; idxOfFace < tree.ROOT_ANCHORSPACEFACES_CNT[idxOfSpace]; idxOfFace++)
                 {
                     space.Nodes.Add(string.Format("{0}_Face:{1}", space.Text, idxOfFace + 1));
                 }
@@ -370,6 +415,8 @@ namespace InviewerDesktopGUI
                     || e.Node.Text == CommonNames.ROOT_STATE
                     || e.Node.Text == CommonNames.ROOT_TRANSITION
                     || e.Node.Text == CommonNames.ROOT_TRANSITIONSPACE
+                    || e.Node.Text == CommonNames.ROOT_CONNECTIONSPACE
+                    || e.Node.Text == CommonNames.ROOT_ANCHORSPACE
                     )
                 {
                     sb.Append(e.Node.Text);
@@ -419,6 +466,8 @@ namespace InviewerDesktopGUI
         {
             return e.Node.Parent.Text == CommonNames.ROOT_CELLSPACE ||
                                     e.Node.Parent.Text == CommonNames.ROOT_GENERALSPACE ||
+                                    e.Node.Parent.Text == CommonNames.ROOT_CONNECTIONSPACE ||
+                                    e.Node.Parent.Text == CommonNames.ROOT_ANCHORSPACE ||
                                     e.Node.Parent.Text == CommonNames.ROOT_TRANSITIONSPACE;
         }
 
@@ -435,6 +484,7 @@ namespace InviewerDesktopGUI
             if (openFileDlg.FileName.Length > 0)
             {
                 SendToUnity("OPEN|" + openFileDlg.FileName);
+                this.Text = "InviewerDesktop: " + openFileDlg.FileName;
                 richTextBox_IndoorGML.Text = System.IO.File.ReadAllText(openFileDlg.FileName);
             }
         }
@@ -650,12 +700,12 @@ namespace InviewerDesktopGUI
                 SendToUnity(string.Format("SELECT|{0}", treeView_IndoorGML.SelectedNode.Text));
             }
 
-            int startPos = richTextBox_IndoorGML.Find(treeView_IndoorGML.SelectedNode.Text);
+            int startPos = richTextBox_IndoorGML.Find("\"" + treeView_IndoorGML.SelectedNode.Text + "\"");
             int length = treeView_IndoorGML.SelectedNode.Text.Length;
             if (startPos != -1)
             {
                 richTextBox_IndoorGML.Focus();
-                richTextBox_IndoorGML.Select(startPos, length);
+                richTextBox_IndoorGML.Select(startPos + 1, length);
             }
         }
 

@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FloorTransitionSpace
-  m_Shader: {fileID: 4800000, guid: 7a81e416a90b4754fab4080ea99e6a3b, type: 3}
+  m_Name: AnchorSpace
+  m_Shader: {fileID: 4800000, guid: 97765845271a0ac4b82a46e4c6056a16, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -66,7 +66,7 @@ Material:
     - _DstBlend: 0
     - _EmissiveIntensity: 1
     - _GlossMapScale: 0
-    - _Glossiness: 0
+    - _Glossiness: 0.308
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
@@ -77,13 +77,13 @@ Material:
     - _Shininess: 0.01
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularIntensity: 0
+    - _SpecularIntensity: 0.626
     - _SrcBlend: 1
     - _Transparency: 0.5
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.7058824, g: 0.7058824, b: 0, a: 0.45490196}
+    - _Color: {r: 0.4009434, g: 1, b: 0.8207474, a: 0.45490196}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
